@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}Book Appointment – SmartCare{% endblock %}
+{% block page_title %}<i class="bi bi-plus-circle me-2"></i>Book New Appointment{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-person-plus me-2"></i>Patient & Appointment Details</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="bookingForm">
+                    <h6 class="text-muted border-bottom pb-2 mb-3">Patient Information</h6>
+                    <div class="row g-3">
+                        <div class="col-8">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" name="patient_name" class="form-control" required>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Age *</label>
+                            <input type="number" name="patient_age" class="form-control" min="0" max="120" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Gender</label>
+                            <select name="patient_gender" class="form-select">
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" name="patient_phone" class="form-control">
+                        </div>
+                    </div>
+
+                    <h6 class="text-muted border-bottom pb-2 mb-3 mt-4">Appointment Details</h6>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Department *</label>
+                            <select name="department_id" id="deptSelect" class="form-select" required>
+                                <option value="">Select Department</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Doctor *</label>
+                            <select name="doctor_id" id="doctorSelect" class="form-select" required>
+                                <option value="">Select Doctor</option>
+                                {% for doc in doctors %}
+                                <option value="{{ doc.id }}" data-dept="{{ doc.department_id }}">
+                                    Dr. {{ doc.name }} – {{ doc.specialization }}
+                                    ({{ doc.availability_percentage|round|int }}% available)
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Date *</label>
+                            <input type="date" name="appointment_date" id="apptDate" class="form-control"
+                                   value="{{ selected_date }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Time Slot *</label>
+                            <select name="appointment_time" id="timeSlotSelect" class="form-select" required>
+                                <option value="">Select a slot →</option>
+                            </select>
+                            <small class="text-muted">Or enter custom time: <input type="time" id="customTime" class="form-control form-control-sm mt-1" placeholder="HH:MM"></small>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Symptoms / Reason</label>
+                            <textarea name="symptoms" class="form-control" rows="2" placeholder="Describe symptoms..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_emergency" class="form-check-input" id="emergencyCheck">
+                                <label class="form-check-label text-danger" for="emergencyCheck">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>Emergency Case
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mt-4">
+                        <i class="bi bi-calendar-plus me-2"></i>Confirm Booking
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Smart Slot Suggestions</h6>
+            </div>
+            <div class="card-body" id="slotSuggestions">
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-arrow-left-circle fs-1"></i>
+                    <p>Select a doctor and date to see optimal slot recommendations</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mt-3">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Crowd Forecast</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="slotCrowdChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('deptSelect').addEventListener('change', function() {
+    const deptId = this.value;
+    const doctorSelect = document.getElementById('doctorSelect');
+    const options = doctorSelect.querySelectorAll('option[data-dept]');
+
+    options.forEach(opt => {
+        opt.style.display = (!deptId || opt.dataset.dept === deptId) ? '' : 'none';
+    });
+    doctorSelect.value = '';
+});
+
+function loadSlots() {
+    const doctorId = document.getElementById('doctorSelect').value;
+    const dateVal = document.getElementById('apptDate').value;
+    if (!doctorId || !dateVal) return;
+
+    fetch(`/api/available-slots?doctor_id=${doctorId}&date=${dateVal}`)
+        .then(r => r.json())
+        .then(data => {
+            const container = document.getElementById('slotSuggestions');
+            const timeSelect = document.getElementById('timeSlotSelect');
+
+            timeSelect.innerHTML = '<option value="">Choose a slot</option>';
+            data.slots.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.time;
+                if (s.is_booked) {
+                    opt.textContent = `${s.time} - ${s.end_time} (BOOKED - Not Available)`;
+                    opt.disabled = true;
+                    opt.style.color = '#dc3545';
+                } else {
+                    opt.textContent = `${s.time} - ${s.end_time} (${s.optimality_label})`;
+                }
+                timeSelect.appendChild(opt);
+            });
+
+            if (data.slots.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-4">No slots available for this date.</div>';
+                return;
+            }
+
+            let html = '<div class="row g-2">';
+            data.slots.forEach((s, i) => {
+                const badge = s.is_recommended
+                    ? '<span class="badge bg-success">★ Recommended</span>'
+                    : '';
+                const bookedClass = s.is_booked ? 'border-danger bg-light' : (s.is_recommended ? 'border-success' : '');
+                const clickable = s.is_booked ? 'opacity-75' : 'cursor:pointer';
+                const onclick = s.is_booked ? '' : `onclick="selectSlot('${s.time}')"`;
+                
+                html += `
+                <div class="col-6">
+                    <div class="card slot-card h-100 ${bookedClass}"
+                         style="${clickable}; border-left: 3px solid ${s.optimality_color}"
+                         ${onclick}>
+                        <div class="card-body p-2">
+                            <div class="d-flex justify-content-between">
+                                <strong>${s.time}</strong>
+                                ${badge}
+                                ${s.is_booked ? '<span class="badge bg-danger">BOOKED</span>' : ''}
+                            </div>
+                            <div class="small mt-1">
+                                <span class="badge" style="background:${s.crowd_color}">${s.crowd_level}</span>
+                                ${s.is_booked ? '<span class="text-danger ms-1">Not Available</span>' : `<span class="text-muted ms-1">~${s.estimated_wait}min wait</span>`}
+                            </div>
+                            <div class="small text-muted mt-1">${s.recommendation}</div>
+                            ${!s.is_booked ? `<div class="progress mt-1" style="height:4px">
+                                <div class="progress-bar" style="width:${s.optimality_score}%;background:${s.optimality_color}"></div>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        });
+
+    const deptId = document.getElementById('deptSelect').value || 1;
+    fetch(`/api/crowd-timeline?department_id=${deptId}&date=${dateVal}`)
+        .then(r => r.json())
+        .then(data => {
+            const ctx = document.getElementById('slotCrowdChart').getContext('2d');
+            if (window.slotChartInstance) window.slotChartInstance.destroy();
+            window.slotChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.timeline.map(t => t.time_label),
+                    datasets: [{
+                        label: 'Expected Crowd',
+                        data: data.timeline.map(t => t.patient_estimate),
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13,110,253,0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+        });
+}
+
+function selectSlot(time) {
+    document.getElementById('timeSlotSelect').value = time;
+}
+
+// Allow custom time input
+document.addEventListener('DOMContentLoaded', function() {
+    const customTimeInput = document.getElementById('customTime');
+    const timeSlotSelect = document.getElementById('timeSlotSelect');
+    
+    if (customTimeInput) {
+        customTimeInput.addEventListener('change', function() {
+            if (this.value) {
+                // Add custom time to select or update its value
+                timeSlotSelect.value = this.value;
+                if (!timeSlotSelect.value) {
+                    const option = document.createElement('option');
+                    option.value = this.value;
+                    option.textContent = this.value + ' (Custom - may not be available)';
+                    option.selected = true;
+                    timeSlotSelect.appendChild(option);
+                }
+            }
+        });
+    }
+});
+
+document.getElementById('doctorSelect').addEventListener('change', loadSlots);
+document.getElementById('apptDate').addEventListener('change', loadSlots);
+</script>
+{% endblock %}

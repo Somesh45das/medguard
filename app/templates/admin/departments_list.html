@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Departments - {{ config.HOSPITAL_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-hospital"></i> Manage Departments</h2>
+        <a href="{{ url_for('admin_mgmt.add_department') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Department
+        </a>
+    </div>
+
+    {% if departments %}
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Floor</th>
+                            <th>Max Capacity</th>
+                            <th>Avg Consultation Time</th>
+                            <th>Doctors</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dept in departments %}
+                        <tr>
+                            <td>{{ dept.id }}</td>
+                            <td><strong>{{ dept.name }}</strong></td>
+                            <td>Floor {{ dept.floor }}</td>
+                            <td>{{ dept.max_capacity }} patients</td>
+                            <td>{{ dept.avg_consultation_min }} min</td>
+                            <td>
+                                <span class="badge bg-info">{{ dept.doctors.count() }} doctors</span>
+                            </td>
+                            <td>
+                                {% if dept.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('admin_mgmt.edit_department', dept_id=dept.id) }}" 
+                                       class="btn btn-outline-primary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('admin_mgmt.toggle_department_status', dept_id=dept.id) }}" 
+                                          style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-outline-warning" title="Toggle Status">
+                                            <i class="fas fa-toggle-on"></i>
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('admin_mgmt.delete_department', dept_id=dept.id) }}" 
+                                          onsubmit="return confirm('Are you sure you want to delete {{ dept.name }}?');" 
+                                          style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No departments found. <a href="{{ url_for('admin_mgmt.add_department') }}">Add your first department</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

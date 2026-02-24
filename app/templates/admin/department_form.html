@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - {{ config.HOSPITAL_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-hospital"></i> {{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback">{{ form.name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.floor.label(class="form-label") }}
+                                {{ form.floor(class="form-control" + (" is-invalid" if form.floor.errors else "")) }}
+                                {% if form.floor.errors %}
+                                    <div class="invalid-feedback">{{ form.floor.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.max_capacity.label(class="form-label") }}
+                                {{ form.max_capacity(class="form-control" + (" is-invalid" if form.max_capacity.errors else "")) }}
+                                {% if form.max_capacity.errors %}
+                                    <div class="invalid-feedback">{{ form.max_capacity.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.avg_consultation_min.label(class="form-label") }}
+                            {{ form.avg_consultation_min(class="form-control" + (" is-invalid" if form.avg_consultation_min.errors else "")) }}
+                            {% if form.avg_consultation_min.errors %}
+                                <div class="invalid-feedback">{{ form.avg_consultation_min.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.is_active(class="form-check-input") }}
+                            {{ form.is_active.label(class="form-check-label") }}
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Department
+                            </button>
+                            <a href="{{ url_for('admin_mgmt.list_departments') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

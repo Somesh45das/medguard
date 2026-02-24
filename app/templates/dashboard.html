@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – SmartCare Hospital{% endblock %}
+{% block page_title %}
+    <i class="bi bi-speedometer2 me-2"></i>Hospital Dashboard
+    <small class="text-muted ms-2">{{ current_date }}</small>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1">Today's Patients</p>
+                        <h2 class="mb-0">{{ total_patients_today }}</h2>
+                    </div>
+                    <div class="stat-icon bg-primary-subtle text-primary">
+                        <i class="bi bi-people"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1">Currently Waiting</p>
+                        <h2 class="mb-0 text-warning">{{ total_waiting }}</h2>
+                    </div>
+                    <div class="stat-icon bg-warning-subtle text-warning">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1">Completed</p>
+                        <h2 class="mb-0 text-success">{{ total_completed }}</h2>
+                    </div>
+                    <div class="stat-icon bg-success-subtle text-success">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1">Active Doctors</p>
+                        <h2 class="mb-0 text-info">{{ active_doctors }}</h2>
+                    </div>
+                    <div class="stat-icon bg-info-subtle text-info">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Average Wait Time</h6>
+                <h1 class="display-4 text-primary">{{ overall_stats.avg_wait_minutes }} <small class="fs-5">min</small></h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Completion Rate</h6>
+                <h1 class="display-4 text-success">{{ overall_stats.completion_rate }}%</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Department Crowd Levels (Current)</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for item in dept_crowds %}
+                    <div class="col-md-4">
+                        <div class="card crowd-card h-100" style="border-left: 4px solid {{ item.crowd.color }}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h6 class="card-title">{{ item.department.name }}</h6>
+                                    <span class="badge" style="background-color: {{ item.crowd.color }}">
+                                        {{ item.crowd.level|upper }}
+                                    </span>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span>Crowd Level</span>
+                                        <span>{{ item.crowd.confidence }}% confidence</span>
+                                    </div>
+                                    <div class="progress mt-1" style="height: 8px;">
+                                        <div class="progress-bar" role="progressbar"
+                                             style="width: {{ item.crowd.level_code * 33 + 10 }}%; background-color: {{ item.crowd.color }}"
+                                        ></div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 d-flex justify-content-between small">
+                                    <span><i class="bi bi-people me-1"></i>Waiting: {{ item.stats.waiting }}</span>
+                                    <span><i class="bi bi-clock me-1"></i>Avg: {{ item.stats.avg_wait_minutes }}m</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Today's Crowd Prediction Timeline</h6>
+                <select id="chartDeptSelect" class="form-select form-select-sm" style="width:200px">
+                    {% for item in dept_crowds %}
+                    <option value="{{ item.department.id }}">{{ item.department.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="card-body">
+                <canvas id="crowdChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-bell me-2"></i>Notifications
+                    {% if unread_count > 0 %}
+                    <span class="badge bg-danger">{{ unread_count }}</span>
+                    {% endif %}
+                </h6>
+            </div>
+            <div class="card-body p-0" style="max-height: 350px; overflow-y: auto;">
+                {% if notifications %}
+                <ul class="list-group list-group-flush">
+                    {% for notif in notifications %}
+                    <li class="list-group-item {% if not notif.is_read %}bg-light{% endif %}">
+                        <div class="d-flex justify-content-between">
+                            <strong class="small">{{ notif.title }}</strong>
+                            <span class="badge bg-{{ 'danger' if notif.type == 'critical' else 'warning' if notif.type == 'warning' else 'success' if notif.type == 'success' else 'info' }}">
+                                {{ notif.type }}
+                            </span>
+                        </div>
+                        <p class="small text-muted mb-0">{{ notif.message }}</p>
+                        <small class="text-muted">{{ notif.created_at.strftime('%I:%M %p') }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center text-muted p-4">
+                    <i class="bi bi-bell-slash fs-1"></i>
+                    <p>No notifications</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deptSelect = document.getElementById('chartDeptSelect');
+    loadCrowdChart(deptSelect.value);
+    deptSelect.addEventListener('change', function() {
+        loadCrowdChart(this.value);
+    });
+});
+
+function loadCrowdChart(deptId) {
+    fetch(`/api/crowd-timeline?department_id=${deptId}`)
+        .then(r => r.json())
+        .then(data => {
+            const ctx = document.getElementById('crowdChart').getContext('2d');
+
+            if (window.crowdChartInstance) {
+                window.crowdChartInstance.destroy();
+            }
+
+            const labels = data.timeline.map(t => t.time_label);
+            const levels = data.timeline.map(t => t.level_code);
+            const colors = data.timeline.map(t => t.color);
+            const estimates = data.timeline.map(t => t.patient_estimate);
+
+            window.crowdChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Crowd Level',
+                        data: levels,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Est. Patients',
+                        data: estimates,
+                        type: 'line',
+                        borderColor: '#6c757d',
+                        borderWidth: 2,
+                        fill: false,
+                        pointRadius: 3,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 3,
+                            ticks: {
+                                callback: v => ['Low','Medium','High','Critical'][v] || ''
+                            }
+                        },
+                        y1: {
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        });
+}
+</script>
+{% endblock %}

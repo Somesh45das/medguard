@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Live Queue – SmartCare{% endblock %}
+{% block page_title %}
+    <i class="bi bi-people me-2"></i>Live Queue Management
+    <span class="badge bg-danger ms-2 pulse-badge">LIVE</span>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-person-plus me-2"></i>Walk-in Patient Registration</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('queue.add_to_queue') }}" class="row g-2 align-items-end">
+                    <div class="col-md-2">
+                        <input type="text" name="patient_name" class="form-control form-control-sm" placeholder="Name" required>
+                    </div>
+                    <div class="col-md-1">
+                        <input type="number" name="patient_age" class="form-control form-control-sm" placeholder="Age" min="0" required>
+                    </div>
+                    <div class="col-md-1">
+                        <select name="patient_gender" class="form-select form-select-sm">
+                            <option>M</option><option>F</option><option>O</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="department_id" class="form-select form-select-sm" required>
+                            {% for dept in departments %}
+                            <option value="{{ dept.id }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" name="symptoms" class="form-control form-control-sm" placeholder="Symptoms">
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-check">
+                            <input type="checkbox" name="is_emergency" class="form-check-input" id="qEmg">
+                            <label class="form-check-label small text-danger" for="qEmg">Emg</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-plus"></i> Add to Queue
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="row">
+                    <div class="col-4">
+                        <h3 class="text-warning mb-0">{{ stats.waiting|default(0) }}</h3>
+                        <small class="text-muted">Waiting</small>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-primary mb-0">{{ stats.in_progress|default(0) }}</h3>
+                        <small class="text-muted">In Progress</small>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-success mb-0">{{ stats.completed|default(0) }}</h3>
+                        <small class="text-muted">Done</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('queue.view_queue') }}"
+           class="btn btn-sm {{ 'btn-primary' if not selected_dept else 'btn-outline-primary' }}">All</a>
+        {% for dept in departments %}
+        <a href="{{ url_for('queue.view_queue', department=dept.id) }}"
+           class="btn btn-sm {{ 'btn-primary' if selected_dept == dept.id else 'btn-outline-primary' }}">
+            {{ dept.name }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+{% if is_single_dept %}
+    {% if queue_data %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Token</th>
+                            <th>Position</th>
+                            <th>Patient</th>
+                            <th>Priority</th>
+                            <th>Est. Wait</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in queue_data %}
+                        <tr class="{{ 'table-warning' if item.entry.status == 'called' else 'table-info' if item.entry.status == 'in_progress' else '' }}">
+                            <td><strong class="fs-5">{{ item.entry.token_number }}</strong></td>
+                            <td>
+                                <span class="badge bg-dark fs-6">#{{ item.entry.position }}</span>
+                            </td>
+                            <td>
+                                {{ item.entry.patient.name }}
+                                <br><small class="text-muted">Age: {{ item.entry.patient.age }}</small>
+                            </td>
+                            <td>
+                                <span style="color: {{ item.priority.color }}">
+                                    {{ item.priority.icon }} {{ item.priority.label }}
+                                </span>
+                                <br><small class="text-muted">Score: {{ item.entry.priority_score }}</small>
+                            </td>
+                            <td>{{ item.wait.display }}</td>
+                            <td>
+                                {% set sc = {'waiting':'warning','called':'info','in_progress':'primary','completed':'success','skipped':'secondary'} %}
+                                <span class="badge bg-{{ sc.get(item.entry.status, 'secondary') }}">
+                                    {{ item.entry.status|replace('_',' ')|title }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if item.entry.status == 'waiting' %}
+                                <form method="POST" action="{{ url_for('queue.call_next', dept_id=selected_dept) }}" class="d-inline">
+                                    <button class="btn btn-sm btn-outline-info" title="Call">
+                                        <i class="bi bi-megaphone"></i>
+                                    </button>
+                                </form>
+                                {% elif item.entry.status == 'called' %}
+                                <form method="POST" action="{{ url_for('queue.start_consultation', queue_id=item.entry.id) }}" class="d-inline">
+                                    <button class="btn btn-sm btn-outline-primary" title="Start">
+                                        <i class="bi bi-play-circle"></i>
+                                    </button>
+                                </form>
+                                {% elif item.entry.status == 'in_progress' %}
+                                <form method="POST" action="{{ url_for('queue.complete_consultation', queue_id=item.entry.id) }}" class="d-inline">
+                                    <button class="btn btn-sm btn-outline-success" title="Complete">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                {% if item.entry.status in ['waiting', 'called'] %}
+                                <form method="POST" action="{{ url_for('queue.skip_patient', queue_id=item.entry.id) }}" class="d-inline">
+                                    <button class="btn btn-sm btn-outline-danger" title="Skip">
+                                        <i class="bi bi-skip-forward"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center text-muted py-5">
+        <i class="bi bi-inbox fs-1"></i>
+        <p>Queue is empty</p>
+    </div>
+    {% endif %}
+{% else %}
+    {% for dept_item in queue_data %}
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white d-flex justify-content-between">
+            <h6 class="mb-0">{{ dept_item.department.name }}</h6>
+            <span class="badge bg-primary">{{ dept_item.stats.waiting }} waiting</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Token</th><th>#</th><th>Patient</th><th>Priority</th><th>Wait</th><th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in dept_item.queue %}
+                        <tr>
+                            <td><strong>{{ item.entry.token_number }}</strong></td>
+                            <td>{{ item.entry.position }}</td>
+                            <td>{{ item.entry.patient.name }}</td>
+                            <td><span style="color:{{ item.priority.color }}">{{ item.priority.icon }} {{ item.priority.label }}</span></td>
+                            <td>{{ item.wait.display }}</td>
+                            <td>
+                                {% set sc = {'waiting':'warning','called':'info','in_progress':'primary'} %}
+                                <span class="badge bg-{{ sc.get(item.entry.status, 'secondary') }}">{{ item.entry.status|replace('_',' ')|title }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center text-muted py-5">
+        <i class="bi bi-inbox fs-1"></i>
+        <p>All queues are empty</p>
+    </div>
+    {% endfor %}
+{% endif %}
+{% endblock %}

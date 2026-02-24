@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Appointments – SmartCare{% endblock %}
+{% block page_title %}<i class="bi bi-calendar-check me-2"></i>Appointments{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" class="form-control" value="{{ filter_date }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Department</label>
+                <select name="department" class="form-select">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}" {{ 'selected' if filter_dept == dept.id|string }}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All</option>
+                    <option value="scheduled" {{ 'selected' if filter_status == 'scheduled' }}>Scheduled</option>
+                    <option value="checked_in" {{ 'selected' if filter_status == 'checked_in' }}>Checked In</option>
+                    <option value="in_progress" {{ 'selected' if filter_status == 'in_progress' }}>In Progress</option>
+                    <option value="completed" {{ 'selected' if filter_status == 'completed' }}>Completed</option>
+                    <option value="cancelled" {{ 'selected' if filter_status == 'cancelled' }}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between mb-3">
+    <h6>{{ appointments|length }} Appointment(s) Found</h6>
+    <a href="{{ url_for('appointments.book_appointment') }}" class="btn btn-success btn-sm">
+        <i class="bi bi-plus-circle me-1"></i>Book New Appointment
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Apt #</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Department</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Wait (Est.)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for apt in appointments %}
+                    <tr>
+                        <td><strong>{{ apt.appointment_number }}</strong></td>
+                        <td>
+                            {{ apt.patient.name }}
+                            {% if apt.patient.is_emergency %}
+                            <span class="badge bg-danger">EMERGENCY</span>
+                            {% endif %}
+                        </td>
+                        <td>Dr. {{ apt.doctor.name }}</td>
+                        <td>{{ apt.department.name }}</td>
+                        <td>{{ apt.appointment_time.strftime('%I:%M %p') }}</td>
+                        <td>
+                            {% set status_colors = {'scheduled':'primary', 'checked_in':'info', 'in_progress':'warning', 'completed':'success', 'cancelled':'secondary', 'no_show':'danger'} %}
+                            <span class="badge bg-{{ status_colors.get(apt.status, 'secondary') }}">
+                                {{ apt.status|replace('_',' ')|title }}
+                            </span>
+                        </td>
+                        <td>{{ apt.estimated_wait_min }} min</td>
+                        <td>
+                            {% if apt.status == 'scheduled' %}
+                            <form method="POST" action="{{ url_for('appointments.checkin', appt_id=apt.id) }}" class="d-inline">
+                                <button class="btn btn-sm btn-outline-success" title="Check In">
+                                    <i class="bi bi-box-arrow-in-right"></i>
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('appointments.cancel_appointment', appt_id=apt.id) }}" class="d-inline">
+                                <button class="btn btn-sm btn-outline-danger" title="Cancel">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="bi bi-calendar-x fs-1"></i>
+                            <p>No appointments found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - {{ config.HOSPITAL_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-user-circle"></i> Welcome, {{ current_user.name }}!</h2>
+            <p class="text-muted">Patient ID: {{ patient.patient_id }}</p>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-calendar-plus fa-3x text-primary mb-3"></i>
+                    <h5>Book Appointment</h5>
+                    <a href="{{ url_for('patient_portal.book') }}" class="btn btn-primary">Book Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-3x text-info mb-3"></i>
+                    <h5>Upcoming</h5>
+                    <h3 class="text-info">{{ upcoming|length }}</h3>
+                    <p class="text-muted mb-0">Appointments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h5>Past Visits</h5>
+                    <h3 class="text-success">{{ past|length }}</h3>
+                    <p class="text-muted mb-0">Completed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Appointments -->
+    {% if today_appts %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-calendar-day"></i> Today's Appointments</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for appt in today_appts %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-user-md text-primary"></i> Dr. {{ appt.doctor.name }}
+                                    </h6>
+                                    <p class="mb-1">
+                                        <i class="fas fa-hospital"></i> {{ appt.department.name }} - Floor {{ appt.department.floor }}
+                                    </p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i> {{ appt.appointment_time.strftime('%I:%M %p') }}
+                                    </small>
+                                </div>
+                                <div>
+                                    {% if appt.status == 'scheduled' %}
+                                    <span class="badge bg-primary">Scheduled</span>
+                                    {% elif appt.status == 'checked_in' %}
+                                    <span class="badge bg-info">Checked In</span>
+                                    {% elif appt.status == 'in_progress' %}
+                                    <span class="badge bg-warning">In Progress</span>
+                                    {% elif appt.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Upcoming Appointments -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> Upcoming Appointments</h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Appointment #</th>
+                                    <th>Date & Time</th>
+                                    <th>Doctor</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appt in upcoming %}
+                                <tr>
+                                    <td><strong>{{ appt.appointment_number }}</strong></td>
+                                    <td>
+                                        {{ appt.appointment_date.strftime('%b %d, %Y') }}<br>
+                                        <small class="text-muted">{{ appt.appointment_time.strftime('%I:%M %p') }}</small>
+                                    </td>
+                                    <td>Dr. {{ appt.doctor.name }}</td>
+                                    <td>{{ appt.department.name }}</td>
+                                    <td>
+                                        {% if appt.status == 'scheduled' %}
+                                        <span class="badge bg-primary">Scheduled</span>
+                                        {% elif appt.status == 'checked_in' %}
+                                        <span class="badge bg-info">Checked In</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle"></i> No upcoming appointments. 
+                        <a href="{{ url_for('patient_portal.book') }}" class="alert-link">Book one now</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Past Appointments -->
+    {% if past %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Recent Past Appointments</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Doctor</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appt in past %}
+                                <tr>
+                                    <td>{{ appt.appointment_date.strftime('%b %d, %Y') }}</td>
+                                    <td>Dr. {{ appt.doctor.name }}</td>
+                                    <td>{{ appt.department.name }}</td>
+                                    <td>
+                                        {% if appt.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                        {% elif appt.status == 'cancelled' %}
+                                        <span class="badge bg-danger">Cancelled</span>
+                                        {% elif appt.status == 'no_show' %}
+                                        <span class="badge bg-warning">No Show</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
