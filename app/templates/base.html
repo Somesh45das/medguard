@@ -160,7 +160,7 @@
             {% endwith %}
         </div>
         
-        {% block content %}{% endblock %}
+        {{ self.content() }}
     </div>
     {% endif %}
 

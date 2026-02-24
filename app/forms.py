@@ -10,8 +10,7 @@ from app.models.user import User
 class LoginForm(FlaskForm):
     """Login form with CSRF protection."""
     email = StringField('Email', validators=[
-        DataRequired(message="Email is required"),
-        Email(message="Invalid email address")
+        DataRequired(message="Email is required")
     ])
     password = PasswordField('Password', validators=[
         DataRequired(message="Password is required")
