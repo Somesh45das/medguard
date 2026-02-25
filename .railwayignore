@@ -1,0 +1,45 @@
+# Exclude virtual environment
+venv/
+env/
+.venv/
+
+# Exclude Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Exclude local database
+instance/
+*.db
+
+# Exclude IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Exclude OS files
+.DS_Store
+Thumbs.db
+
+# Exclude git
+.git/
+.gitignore
+
+# Exclude documentation (optional)
+*.md
+
+# Exclude test files
+test_*.py
+debug_*.py
+
+# Exclude data files
+data/
+*.pkl
+*.csv
+
+# Exclude deployment scripts
+deploy-*.bat
+deploy-*.sh

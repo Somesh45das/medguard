@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# Flask
+instance/
+.webassets-cache
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# ML Models (large files)
+*.pkl
+app/ml/crowd_model.pkl
+app/ml/scaler.pkl
+app/ml/models/*.pkl
+
+# Data files
+data/raw/*.csv
+data/processed/*.csv
+
+# Backup files
+*-full.txt
+requirements-full.txt
