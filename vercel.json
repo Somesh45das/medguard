@@ -2,22 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "15mb"
-      }
+      "src": "vercel_app.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "api/index.py"
+      "dest": "vercel_app.py"
     }
   ],
   "env": {
     "SECRET_KEY": "vercel-deployment-secret-key-2024",
-    "SKIP_ML_LOADING": "1",
-    "FLASK_ENV": "production"
+    "SKIP_ML_LOADING": "1"
   }
 }
