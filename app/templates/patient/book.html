@@ -42,33 +42,12 @@
                     </div>
                     <div class="card-body p-4">
                         <form method="POST" id="bookingForm">
-                            <h6 class="text-primary border-bottom pb-2 mb-3">Personal Information</h6>
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label">Full Name *</label>
-                                    <input type="text" name="patient_name" class="form-control" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Age *</label>
-                                    <input type="number" name="patient_age" class="form-control" min="0" max="120" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Gender</label>
-                                    <select name="patient_gender" class="form-select">
-                                        <option>Male</option>
-                                        <option>Female</option>
-                                        <option>Other</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Phone Number * (for SMS)</label>
-                                    <input type="tel" name="patient_phone" class="form-control" placeholder="+91-XXXXXXXXXX" required>
-                                    <small class="text-muted">You'll receive SMS confirmation</small>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Email (Optional)</label>
-                                    <input type="email" name="patient_email" class="form-control">
-                                </div>
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-person-circle me-2"></i>
+                                <strong>Booking for:</strong> {{ current_user.name }}
+                                {% if current_user.phone %}
+                                | <i class="bi bi-telephone me-1"></i>{{ current_user.phone }}
+                                {% endif %}
                             </div>
 
                             <h6 class="text-primary border-bottom pb-2 mb-3">Appointment Details</h6>
@@ -115,9 +94,14 @@
 
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="bi bi-check-circle me-2"></i>Confirm Booking & Send SMS
+                                    <i class="bi bi-check-circle me-2"></i>Confirm Booking
                                 </button>
                             </div>
+                            {% if current_user.phone %}
+                            <p class="text-center text-muted mt-2 mb-0">
+                                <small><i class="bi bi-envelope me-1"></i>SMS confirmation will be sent to {{ current_user.phone }}</small>
+                            </p>
+                            {% endif %}
                         </form>
                     </div>
                 </div>

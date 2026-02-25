@@ -115,6 +115,33 @@ def seed():
         db.session.flush()
         print(f"   ✅ {len(patients)} patients created")
 
+        # ---- Create Test User with Patient Record ----
+        test_patient = Patient(
+            patient_id=f"P-{date.today().strftime('%Y%m%d')}-999",
+            name="Test Patient",
+            age=30,
+            gender="Male",
+            phone="+91-8888888888",
+            email="test@patient.com",
+            is_emergency=False
+        )
+        db.session.add(test_patient)
+        db.session.flush()
+        
+        test_user = User(
+            name="Test Patient",
+            email="test@patient.com",
+            phone="+91-8888888888",
+            role="user",
+            is_active=True,
+            is_verified=True,
+            patient_id=test_patient.id
+        )
+        test_user.set_password("test123")
+        db.session.add(test_user)
+        db.session.flush()
+        print(f"   ✅ Test user created (email: test@patient.com, password: test123)")
+
         # ---- Today's Appointments ----
         today = date.today()
         statuses = ["scheduled", "scheduled", "scheduled", "checked_in", "completed"]

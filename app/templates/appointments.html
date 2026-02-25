@@ -3,8 +3,65 @@
 {% block page_title %}<i class="bi bi-calendar-check me-2"></i>Appointments{% endblock %}
 
 {% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-check fs-1 text-primary"></i>
+                <h3 class="mt-2 mb-0">{{ total_all_dates }}</h3>
+                <p class="text-muted small mb-0">Total Appointments</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-day fs-1 text-success"></i>
+                <h3 class="mt-2 mb-0">{{ total_today }}</h3>
+                <p class="text-muted small mb-0">Today's Appointments</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-plus fs-1 text-info"></i>
+                <h3 class="mt-2 mb-0">{{ total_upcoming }}</h3>
+                <p class="text-muted small mb-0">Upcoming (Future)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-clock-history fs-1 text-warning"></i>
+                <h3 class="mt-2 mb-0">{{ total_past }}</h3>
+                <p class="text-muted small mb-0">Past Appointments</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="btn-group mb-3" role="group">
+                    <a href="{{ url_for('appointments.list_appointments', date=prev_date) }}" 
+                       class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-chevron-left"></i> Previous Day
+                    </a>
+                    <a href="{{ url_for('appointments.list_appointments') }}" 
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-calendar-day"></i> Today
+                    </a>
+                    <a href="{{ url_for('appointments.list_appointments', date=next_date) }}" 
+                       class="btn btn-outline-secondary btn-sm">
+                        Next Day <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
         <form method="GET" class="row g-3 align-items-end">
             <div class="col-md-3">
                 <label class="form-label">Date</label>
@@ -39,11 +96,20 @@
     </div>
 </div>
 
-<div class="d-flex justify-content-between mb-3">
-    <h6>{{ appointments|length }} Appointment(s) Found</h6>
-    <a href="{{ url_for('appointments.book_appointment') }}" class="btn btn-success btn-sm">
-        <i class="bi bi-plus-circle me-1"></i>Book New Appointment
-    </a>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h6>{{ appointments|length }} Appointment(s) Found for {{ filter_date }}</h6>
+        {% if appointments|length == 0 %}
+        <p class="text-muted small mb-0">
+            <i class="bi bi-info-circle me-1"></i>Try changing the date filter above to see appointments on other days
+        </p>
+        {% endif %}
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{{ url_for('appointments.book_appointment') }}" class="btn btn-success btn-sm">
+            <i class="bi bi-plus-circle me-1"></i>Book New Appointment
+        </a>
+    </div>
 </div>
 
 <div class="card border-0 shadow-sm">

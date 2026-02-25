@@ -36,6 +36,17 @@ def list_appointments():
     appointments = query.order_by(Appointment.appointment_time.asc()).all()
     departments = Department.query.filter_by(is_active=True).all()
 
+    # Get statistics for dashboard cards
+    today = date.today()
+    total_all_dates = Appointment.query.count()
+    total_today = Appointment.query.filter_by(appointment_date=today).count()
+    total_upcoming = Appointment.query.filter(Appointment.appointment_date > today).count()
+    total_past = Appointment.query.filter(Appointment.appointment_date < today).count()
+    
+    # Calculate prev/next dates for navigation
+    prev_date = (target_date - timedelta(days=1)).isoformat()
+    next_date = (target_date + timedelta(days=1)).isoformat()
+
     return render_template(
         "appointments.html",
         appointments=appointments,
@@ -43,6 +54,12 @@ def list_appointments():
         filter_date=target_date.isoformat(),
         filter_dept=filter_dept,
         filter_status=filter_status,
+        total_all_dates=total_all_dates,
+        total_today=total_today,
+        total_upcoming=total_upcoming,
+        total_past=total_past,
+        prev_date=prev_date,
+        next_date=next_date,
     )
 
 

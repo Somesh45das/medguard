@@ -63,23 +63,19 @@ def dashboard():
 def book():
     """Patient self-booking interface."""
     if request.method == "POST":
-        # Collect patient information
-        patient_name = request.form.get("patient_name", "").strip()
-        patient_age = int(request.form.get("patient_age", 30))
-        patient_gender = request.form.get("patient_gender", "Other")
-        patient_phone = request.form.get("patient_phone", "")
-        patient_email = request.form.get("patient_email", "")
+        # Use logged-in user's patient record
+        if not current_user.patient:
+            flash("Please complete your profile first.", "warning")
+            return redirect(url_for("patient_portal.dashboard"))
         
+        patient = current_user.patient
+        
+        # Get booking details
         department_id = int(request.form.get("department_id"))
         doctor_id = int(request.form.get("doctor_id"))
         appt_date = date.fromisoformat(request.form.get("appointment_date"))
         appt_time_str = request.form.get("appointment_time")
         symptoms = request.form.get("symptoms", "")
-        
-        # Validate phone number
-        if not patient_phone or len(patient_phone) < 10:
-            flash("Please provide a valid phone number for SMS confirmation.", "danger")
-            return redirect(url_for("patient_portal.book"))
         
         # Parse time
         appt_time = datetime.strptime(appt_time_str, "%H:%M").time()
@@ -98,22 +94,7 @@ def book():
                                   doctor_id=doctor_id, 
                                   date=appt_date.isoformat()))
         
-        # Create patient record
-        patient_count = Patient.query.count()
-        patient_id_str = f"P-{date.today().strftime('%Y%m%d')}-{patient_count + 1:03d}"
-        
-        patient = Patient(
-            patient_id=patient_id_str,
-            name=patient_name,
-            age=patient_age,
-            gender=patient_gender,
-            phone=patient_phone,
-            email=patient_email,
-        )
-        db.session.add(patient)
-        db.session.flush()
-        
-        # Create appointment
+        # Create appointment using logged-in user's patient record
         end_time = (datetime.combine(appt_date, appt_time) + timedelta(minutes=15)).time()
         appt_count = Appointment.query.filter(
             Appointment.appointment_date == appt_date
