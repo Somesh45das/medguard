@@ -96,6 +96,10 @@ class CrowdPredictor:
         if hour is None:
             hour = datetime.now().hour
 
+        # Fallback if model not loaded (e.g., in serverless environment)
+        if self.model is None:
+            return self._fallback_prediction(hour, current_count)
+
         features = self._build_features(
             department_id, target_date, hour, is_holiday, temperature, current_count
         )
@@ -161,6 +165,25 @@ class CrowdPredictor:
             return 1, 60.0  # medium
         else:
             return 0, 75.0  # low
+
+    def _fallback_prediction(self, hour: int, current_count: int) -> dict:
+        """Simple fallback when ML model is not available."""
+        day_of_week = datetime.now().weekday()
+        prediction, confidence = self._rule_based_predict(hour, day_of_week, current_count)
+        level = self.CROWD_LEVELS.get(prediction, "medium")
+        patient_estimate = self._estimate_patient_count(level, hour)
+        
+        return {
+            "level": level,
+            "level_code": int(prediction),
+            "confidence": round(confidence, 1),
+            "color": self.CROWD_COLORS[level],
+            "patient_estimate": patient_estimate,
+            "hour": hour,
+            "date": date.today().isoformat(),
+            "department_id": 0,
+            "note": "Using rule-based prediction (ML model not available)"
+        }
 
     def _estimate_patient_count(self, level: str, hour: int) -> int:
         """Estimate patient count based on crowd level."""
