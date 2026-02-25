@@ -5,7 +5,7 @@
       "src": "api/index.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "50mb"
+        "maxLambdaSize": "15mb"
       }
     }
   ],
@@ -16,6 +16,8 @@
     }
   ],
   "env": {
-    "SECRET_KEY": "vercel-deployment-secret-key-2024"
+    "SECRET_KEY": "vercel-deployment-secret-key-2024",
+    "SKIP_ML_LOADING": "1",
+    "FLASK_ENV": "production"
   }
 }

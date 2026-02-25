@@ -3,10 +3,17 @@ ML-based crowd level prediction service.
 Uses historical data to predict OPD crowd levels.
 """
 import os
-import numpy as np
-import joblib
 from datetime import datetime, date
 from config import Config
+
+# Try to import ML libraries, but don't fail if they're not available
+try:
+    import numpy as np
+    import joblib
+    ML_AVAILABLE = True
+except ImportError:
+    ML_AVAILABLE = False
+    print("[CrowdPredictor] ML libraries not available - using fallback mode")
 
 
 class CrowdPredictor:
@@ -27,6 +34,11 @@ class CrowdPredictor:
 
     def _load_model(self):
         """Load the trained model and scaler from disk."""
+        if not ML_AVAILABLE:
+            print(f"[CrowdPredictor] ML libraries not available - using fallback")
+            self.model = None
+            return
+            
         try:
             if os.path.exists(Config.ML_MODEL_PATH):
                 self.model = joblib.load(Config.ML_MODEL_PATH)
@@ -43,8 +55,11 @@ class CrowdPredictor:
         is_holiday: bool = False,
         temperature: float = 25.0,
         current_count: int = 0,
-    ) -> np.ndarray:
+    ):
         """Build feature vector for prediction."""
+        if not ML_AVAILABLE:
+            return None
+            
         day_of_week = target_date.weekday()
         month = target_date.month
         is_weekend = 1 if day_of_week >= 5 else 0
