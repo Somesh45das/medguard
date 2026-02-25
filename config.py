@@ -8,10 +8,19 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "smart-hospital-secret-key-2024")
-    SQLALCHEMY_DATABASE_URI = (
-        os.environ.get("DATABASE_URL")
-        or f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'hospital.db')}"
-    )
+    
+    # Database configuration - supports both PostgreSQL (Vercel) and SQLite (local)
+    DATABASE_URL = os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL")
+    
+    if DATABASE_URL:
+        # Fix for Vercel Postgres URL (postgres:// -> postgresql://)
+        if DATABASE_URL.startswith("postgres://"):
+            DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    else:
+        # Fallback to SQLite for local development
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'hospital.db')}"
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Session configuration

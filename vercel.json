@@ -1,14 +1,21 @@
 {
+  "version": 2,
   "builds": [
     {
-      "src": "backend/main.py",
-      "use": "@vercel/python"
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "backend/main.py"
+      "dest": "api/index.py"
     }
-  ]
+  ],
+  "env": {
+    "SECRET_KEY": "vercel-deployment-secret-key-2024"
+  }
 }
