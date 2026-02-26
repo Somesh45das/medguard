@@ -51,6 +51,7 @@ def create_app(config_class=None):
     from app.routes.queue_routes import queue_bp
     from app.routes.doctors import doctors_bp
     from app.routes.api import api_bp
+    from app.routes.chatbot import chatbot_bp
     from app.routes.patient_portal import patient_portal_bp
     from app.routes.admin_management import admin_mgmt_bp
 
@@ -72,6 +73,7 @@ def create_app(config_class=None):
     
     # API routes
     app.register_blueprint(api_bp, url_prefix="/api")
+    app.register_blueprint(chatbot_bp, url_prefix="/chatbot")
 
     # Create database tables
     with app.app_context():

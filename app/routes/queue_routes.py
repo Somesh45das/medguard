@@ -28,7 +28,16 @@ def view_queue():
     stats = {}
 
     if dept_id:
-        entries = queue_mgr.get_department_queue(dept_id)
+        # Single department view - get all statuses including completed
+        entries = QueueEntry.query.filter(
+            QueueEntry.department_id == dept_id,
+            QueueEntry.queue_date == date.today()
+        ).order_by(
+            QueueEntry.status.desc(),  # completed last
+            QueueEntry.priority_score.desc(),
+            QueueEntry.position.asc()
+        ).all()
+        
         stats = queue_mgr.get_queue_stats(dept_id)
 
         for entry in entries:
@@ -42,7 +51,15 @@ def view_queue():
     else:
         # Show all departments
         for dept in departments:
-            entries = queue_mgr.get_department_queue(dept.id)
+            entries = QueueEntry.query.filter(
+                QueueEntry.department_id == dept.id,
+                QueueEntry.queue_date == date.today(),
+                QueueEntry.status.in_(['waiting', 'called', 'in_progress'])
+            ).order_by(
+                QueueEntry.priority_score.desc(),
+                QueueEntry.position.asc()
+            ).all()
+            
             dept_stats = queue_mgr.get_queue_stats(dept.id)
             dept_queue = []
             for entry in entries:

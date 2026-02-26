@@ -3,135 +3,636 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SmartCare Hospital</title>
+    <title>Welcome - SmartCare Hospital</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
+            position: relative;
+            overflow-x: hidden;
         }
-        .login-card {
-            max-width: 450px;
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: backgroundMove 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes backgroundMove {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(20px, 20px);
+            }
+        }
+
+        /* Floating Shapes */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .shape1 {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape2 {
+            width: 60px;
+            height: 60px;
+            top: 70%;
+            left: 80%;
+            animation-delay: 2s;
+        }
+
+        .shape3 {
+            width: 100px;
+            height: 100px;
+            top: 40%;
+            left: 5%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-30px) rotate(180deg);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-wrapper {
+            max-width: 1000px;
             margin: 0 auto;
         }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .login-left {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-left::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .login-left-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-icon {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+            }
+        }
+
+        .welcome-icon i {
+            font-size: 4rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            animation: slideInLeft 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .feature-item:nth-child(1) { animation-delay: 0.2s; }
+        .feature-item:nth-child(2) { animation-delay: 0.4s; }
+        .feature-item:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+
+        .login-right {
+            padding: 60px 50px;
+        }
+
         .role-badge {
             cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .role-badge:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .role-badge.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+        }
+
+        .role-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .form-control {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 14px 16px;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group-text {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 2px solid #e0e0e0;
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            color: #667eea;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 16px;
+            color: white;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-login:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-register {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 12px;
+            padding: 10px 24px;
+            font-weight: 600;
             transition: all 0.3s;
         }
-        .role-badge:hover {
-            transform: scale(1.05);
+
+        .btn-register:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .demo-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            border-left: 4px solid #10b981;
+            border-radius: 12px;
+            padding: 16px;
+            animation: fadeIn 0.6s ease-out 0.8s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .form-check-input:checked {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .login-left {
+                padding: 40px 30px;
+            }
+
+            .login-right {
+                padding: 40px 30px;
+            }
+
+            .welcome-icon {
+                width: 100px;
+                height: 100px;
+            }
+
+            .welcome-icon i {
+                font-size: 3rem;
+            }
+        }
+
+        /* Loading Animation */
+        .btn-login.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Floating Shapes -->
+    <div class="shape shape1"></div>
+    <div class="shape shape2"></div>
+    <div class="shape shape3"></div>
+
     <div class="container">
-        <div class="login-card">
-            <div class="card shadow-lg">
-                <div class="card-body p-5">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-hospital text-primary" style="font-size: 3rem;"></i>
-                        <h4 class="mt-3">SmartCare Hospital</h4>
-                        <p class="text-muted">Secure Login Portal</p>
-                    </div>
-
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="login-wrapper">
+            <div class="login-card">
+                <div class="row g-0">
+                    <!-- Left Side - Welcome Section -->
+                    <div class="col-lg-5 d-none d-lg-block">
+                        <div class="login-left">
+                            <div class="login-left-content">
+                                <div class="welcome-icon">
+                                    <i class="bi bi-heart-pulse-fill"></i>
                                 </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
+                                
+                                <h2 class="text-center mb-2">Welcome Back!</h2>
+                                <p class="text-center mb-5 opacity-75">Your health, our priority</p>
 
-                    <div class="mb-4">
-                        <p class="text-center text-muted small mb-2">Login as:</p>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <div class="card role-badge border-primary text-center p-3">
-                                    <i class="bi bi-person text-primary" style="font-size: 2rem;"></i>
-                                    <small class="mt-2"><strong>Patient</strong></small>
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="bi bi-calendar-check"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">Easy Appointments</h6>
+                                        <small class="opacity-75">Book in seconds</small>
+                                    </div>
+                                </div>
+
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">Real-Time Updates</h6>
+                                        <small class="opacity-75">Track your queue position</small>
+                                    </div>
+                                </div>
+
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="bi bi-shield-check"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">Secure & Private</h6>
+                                        <small class="opacity-75">Your data is protected</small>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-6">
-                                <div class="card role-badge border-danger text-center p-3">
-                                    <i class="bi bi-shield-lock text-danger" style="font-size: 2rem;"></i>
-                                    <small class="mt-2"><strong>Admin</strong></small>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
-                    <form method="POST" novalidate>
-                        {{ form.hidden_tag() }}
-                        
-                        <div class="mb-3">
-                            {{ form.email.label(class="form-label") }}
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Enter your email") }}
+                    <!-- Right Side - Login Form -->
+                    <div class="col-lg-7">
+                        <div class="login-right">
+                            <div class="text-center mb-4">
+                                <h3 class="mb-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                                    SmartCare Hospital
+                                </h3>
+                                <p class="text-muted">Sign in to continue</p>
                             </div>
-                            {% if form.email.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.email.errors[0] }}
-                                </div>
-                            {% endif %}
-                        </div>
 
-                        <div class="mb-3">
-                            {{ form.password.label(class="form-label") }}
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Enter your password") }}
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show">
+                                            <i class="bi bi-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }} me-2"></i>
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+
+                            <!-- Role Selection -->
+                            <div class="mb-4">
+                                <p class="text-center text-muted small mb-3">Select your role</p>
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <div class="card role-badge text-center p-3" onclick="selectRole('patient')">
+                                            <div class="role-icon">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                            <strong>Patient</strong>
+                                            <small class="text-muted">Book & Track</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="card role-badge text-center p-3" onclick="selectRole('admin')">
+                                            <div class="role-icon">
+                                                <i class="bi bi-shield-lock"></i>
+                                            </div>
+                                            <strong>Admin</strong>
+                                            <small class="text-muted">Manage System</small>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            {% if form.password.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.password.errors[0] }}
+
+                            <!-- Login Form -->
+                            <form method="POST" novalidate id="loginForm">
+                                {{ form.hidden_tag() }}
+                                
+                                <div class="mb-3">
+                                    {{ form.email.label(class="form-label fw-semibold") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-envelope"></i>
+                                        </span>
+                                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="your.email@example.com") }}
+                                    </div>
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle me-1"></i>{{ form.email.errors[0] }}
+                                        </div>
+                                    {% endif %}
                                 </div>
-                            {% endif %}
+
+                                <div class="mb-3">
+                                    {{ form.password.label(class="form-label fw-semibold") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-lock"></i>
+                                        </span>
+                                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Enter your password") }}
+                                    </div>
+                                    {% if form.password.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle me-1"></i>{{ form.password.errors[0] }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <div class="form-check">
+                                        {{ form.remember_me(class="form-check-input") }}
+                                        {{ form.remember_me.label(class="form-check-label") }}
+                                    </div>
+                                    <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none small" style="color: #667eea;">
+                                        Forgot Password?
+                                    </a>
+                                </div>
+
+                                <div class="d-grid mb-3">
+                                    <button type="submit" class="btn btn-login btn-lg">
+                                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                                        <span>Sign In</span>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="text-center mb-4">
+                                <p class="text-muted small mb-2">Don't have an account?</p>
+                                <a href="{{ url_for('auth.register') }}" class="btn btn-register">
+                                    <i class="bi bi-person-plus me-2"></i>Register as Patient
+                                </a>
+                            </div>
+
+                            <!-- Demo Accounts -->
+                            <div class="demo-box">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-info-circle me-2" style="color: #10b981;"></i>
+                                    <strong style="color: #10b981;">Demo Accounts</strong>
+                                </div>
+                                <small class="d-block mb-1">
+                                    <strong>Admin:</strong> admin@hospital.com / admin123
+                                </small>
+                                <small class="d-block">
+                                    <strong>Patient:</strong> test@patient.com / test123
+                                </small>
+                            </div>
                         </div>
-
-                        <div class="mb-3 form-check">
-                            {{ form.remember_me(class="form-check-input") }}
-                            {{ form.remember_me.label(class="form-check-label") }}
-                        </div>
-
-                        <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Login
-                            </button>
-                        </div>
-                    </form>
-
-                    <div class="text-center">
-                        <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none small">
-                            Forgot Password?
-                        </a>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="text-center">
-                        <p class="small text-muted mb-2">Don't have an account?</p>
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-person-plus me-1"></i>Register as Patient
-                        </a>
-                    </div>
-
-                    <div class="alert alert-info small mt-3 mb-0">
-                        <strong>Demo Accounts:</strong><br>
-                        <strong>Admin:</strong> admin@hospital.com / admin123<br>
-                        <strong>Patient:</strong> Register a new account
                     </div>
                 </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-4">
+                <p class="text-white small mb-0">
+                    <i class="bi bi-shield-check me-1"></i>
+                    Secure & Encrypted Connection
+                </p>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Role selection
+        function selectRole(role) {
+            document.querySelectorAll('.role-badge').forEach(badge => {
+                badge.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        // Form submission animation
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const btn = this.querySelector('.btn-login');
+            btn.classList.add('loading');
+            btn.querySelector('span').textContent = 'Signing in...';
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
 </body>
 </html>
