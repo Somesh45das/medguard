@@ -19,6 +19,8 @@ def login():
         # Redirect based on role
         if current_user.is_admin():
             return redirect(url_for('dashboard.index'))
+        elif current_user.is_doctor():
+            return redirect(url_for('doctor_portal.dashboard'))
         else:
             return redirect(url_for('patient_portal.dashboard'))
     
@@ -48,6 +50,9 @@ def login():
             if user.is_admin():
                 flash(f'Welcome back, {user.name}!', 'success')
                 return redirect(url_for('dashboard.index'))
+            elif user.is_doctor():
+                flash(f'Welcome back, Dr. {user.name}!', 'success')
+                return redirect(url_for('doctor_portal.dashboard'))
             else:
                 flash(f'Welcome back, {user.name}!', 'success')
                 return redirect(url_for('patient_portal.dashboard'))
@@ -55,6 +60,62 @@ def login():
             flash('Invalid email or password. Please try again.', 'danger')
     
     return render_template('auth/login.html', form=form)
+
+
+@auth_bp.route('/simple-login', methods=['GET', 'POST'])
+def simple_login():
+    """Simple login page for testing."""
+    if current_user.is_authenticated:
+        # Redirect based on role
+        if current_user.is_admin():
+            return redirect(url_for('dashboard.index'))
+        elif current_user.is_doctor():
+            return redirect(url_for('doctor_portal.dashboard'))
+        else:
+            return redirect(url_for('patient_portal.dashboard'))
+    
+    form = LoginForm()
+    
+    if form.validate_on_submit():
+        email = form.email.data.lower().strip()
+        password = form.password.data
+        
+        # Find user
+        user = User.query.filter_by(email=email).first()
+        
+        if user and user.check_password(password):
+            if not user.is_active:
+                flash('Your account has been deactivated. Please contact support.', 'danger')
+                return redirect(url_for('auth.simple_login'))
+            
+            # Login user
+            login_user(user, remember=form.remember_me.data)
+            user.update_last_login()
+            
+            # Redirect based on role
+            next_page = request.args.get('next')
+            if next_page:
+                return redirect(next_page)
+            
+            if user.is_admin():
+                flash(f'Welcome back, {user.name}!', 'success')
+                return redirect(url_for('dashboard.index'))
+            elif user.is_doctor():
+                flash(f'Welcome back, Dr. {user.name}!', 'success')
+                return redirect(url_for('doctor_portal.dashboard'))
+            else:
+                flash(f'Welcome back, {user.name}!', 'success')
+                return redirect(url_for('patient_portal.dashboard'))
+        else:
+            flash('Invalid email or password. Please try again.', 'danger')
+    
+    return render_template('auth/simple_login.html', form=form)
+
+
+@auth_bp.route('/help')
+def help():
+    """Help page with navigation and troubleshooting."""
+    return render_template('help.html')
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])

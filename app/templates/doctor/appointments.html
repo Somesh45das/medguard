@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}My Appointments – SmartCare{% endblock %}
+{% block page_title %}<i class="bi bi-calendar-check me-2"></i>My Appointments{% endblock %}
+
+{% block content %}
+<!-- Statistics -->
+<div class="row g-3 mb-4">
+    <div class="col-md-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body">
+                <h3 class="mb-0">{{ stats.total }}</h3>
+                <small class="text-muted">Total</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body">
+                <h3 class="mb-0 text-secondary">{{ stats.scheduled }}</h3>
+                <small class="text-muted">Scheduled</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body">
+                <h3 class="mb-0 text-info">{{ stats.checked_in }}</h3>
+                <small class="text-muted">Checked In</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body">
+                <h3 class="mb-0 text-warning">{{ stats.in_progress }}</h3>
+                <small class="text-muted">In Progress</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body">
+                <h3 class="mb-0 text-success">{{ stats.completed }}</h3>
+                <small class="text-muted">Completed</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body">
+                <h3 class="mb-0 text-danger">{{ stats.cancelled + stats.no_show }}</h3>
+                <small class="text-muted">Cancelled/No Show</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
+                    <option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                    <option value="checked_in" {% if status_filter == 'checked_in' %}selected{% endif %}>Checked In</option>
+                    <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    <option value="no_show" {% if status_filter == 'no_show' %}selected{% endif %}>No Show</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Date Range</label>
+                <select name="date" class="form-select" onchange="this.form.submit()">
+                    <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                    <option value="week" {% if date_filter == 'week' %}selected{% endif %}>This Week</option>
+                    <option value="month" {% if date_filter == 'month' %}selected{% endif %}>This Month</option>
+                    <option value="all" {% if date_filter == 'all' %}selected{% endif %}>All Time</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <a href="{{ url_for('doctor_portal.appointments') }}" class="btn btn-outline-secondary">Clear Filters</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Appointments Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        {% if appointments %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Appointment #</th>
+                        <th>Date & Time</th>
+                        <th>Patient</th>
+                        <th>Symptoms</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td><strong>{{ appointment.appointment_number }}</strong></td>
+                        <td>
+                            {{ appointment.appointment_date.strftime('%b %d, %Y') }}<br>
+                            <small class="text-muted">{{ appointment.appointment_time.strftime('%I:%M %p') }}</small>
+                        </td>
+                        <td>
+                            {{ appointment.patient.name }}<br>
+                            <small class="text-muted">{{ appointment.patient.age }}y, {{ appointment.patient.gender }}</small>
+                        </td>
+                        <td>{{ appointment.symptoms[:40] if appointment.symptoms else '-' }}...</td>
+                        <td>
+                            {% set priority = appointment.priority_score %}
+                            {% if priority >= 70 %}
+                                <span class="badge bg-danger">🔴 {{ priority }}</span>
+                            {% elif priority >= 45 %}
+                                <span class="badge bg-warning">🟠 {{ priority }}</span>
+                            {% elif priority >= 20 %}
+                                <span class="badge" style="background-color: #ffc107;">🟡 {{ priority }}</span>
+                            {% else %}
+                                <span class="badge bg-success">🟢 {{ priority }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if appointment.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% elif appointment.status == 'in_progress' %}
+                                <span class="badge bg-warning">In Progress</span>
+                            {% elif appointment.status == 'checked_in' %}
+                                <span class="badge bg-info">Checked In</span>
+                            {% elif appointment.status == 'scheduled' or appointment.status == 'waiting' %}
+                                <span class="badge bg-secondary">Scheduled</span>
+                            {% elif appointment.status == 'cancelled' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% elif appointment.status == 'no_show' %}
+                                <span class="badge bg-dark">No Show</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('doctor_portal.appointment_detail', appointment_id=appointment.id) }}" 
+                               class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-calendar-x fs-1"></i>
+            <p class="mt-2">No appointments found</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

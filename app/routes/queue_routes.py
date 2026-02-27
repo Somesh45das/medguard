@@ -17,6 +17,9 @@ queue_bp = Blueprint("queue", __name__)
 @admin_required
 def view_queue():
     """View queue for all departments or a specific one."""
+    # Auto-sync today's appointments to queue
+    _auto_sync_appointments()
+    
     queue_mgr = QueueManager()
     wait_est = WaitTimeEstimator()
     priority_scorer = PriorityScorer()
@@ -87,6 +90,42 @@ def view_queue():
         selected_dept=dept_id,
         is_single_dept=dept_id is not None,
     )
+
+
+def _auto_sync_appointments():
+    """Automatically sync today's appointments to queue."""
+    from app.models.models import Appointment
+    
+    today = date.today()
+    queue_mgr = QueueManager()
+    
+    # Get today's appointments not yet in queue
+    appointments = Appointment.query.filter(
+        Appointment.appointment_date == today,
+        Appointment.status.in_(['scheduled', 'confirmed'])
+    ).all()
+    
+    for appt in appointments:
+        # Check if already in queue
+        existing = QueueEntry.query.filter_by(
+            appointment_id=appt.id,
+            queue_date=today
+        ).first()
+        
+        if not existing:
+            try:
+                queue_mgr.add_to_queue(
+                    patient_id=appt.patient_id,
+                    department_id=appt.department_id,
+                    doctor_id=appt.doctor_id,
+                    appointment_id=appt.id,
+                    symptoms=appt.symptoms
+                )
+                appt.status = 'waiting'
+            except:
+                pass  # Silently fail to avoid breaking the page
+    
+    db.session.commit()
 
 
 @queue_bp.route("/add", methods=["POST"])
@@ -163,6 +202,13 @@ def complete_consultation(queue_id):
     entry = queue_mgr.complete_consultation(queue_id)
     if entry:
         flash(f"Consultation completed for {entry.patient.name}", "success")
+        
+        # Send follow-up SMS after completion
+        if entry.appointment_id:
+            from app.services.notification_manager import NotificationManager
+            notif_mgr = NotificationManager()
+            notif_mgr.send_followup_after_completion(entry.appointment_id)
+    
     return redirect(url_for("queue.view_queue", department=entry.department_id if entry else ""))
 
 
@@ -175,3 +221,90 @@ def skip_patient(queue_id):
     if entry:
         flash(f"Patient {entry.patient.name} marked as skipped.", "warning")
     return redirect(url_for("queue.view_queue", department=entry.department_id if entry else ""))
+
+
+@queue_bp.route("/sync-appointments")
+@admin_required
+def sync_appointments():
+    """Manually sync today's appointments to queue."""
+    from app.models.models import Appointment
+    
+    today = date.today()
+    queue_mgr = QueueManager()
+    
+    # Get today's appointments not yet in queue
+    appointments = Appointment.query.filter(
+        Appointment.appointment_date == today,
+        Appointment.status.in_(['scheduled', 'confirmed'])
+    ).all()
+    
+    synced = 0
+    for appt in appointments:
+        # Check if already in queue
+        existing = QueueEntry.query.filter_by(
+            appointment_id=appt.id,
+            queue_date=today
+        ).first()
+        
+        if not existing:
+            try:
+                queue_mgr.add_to_queue(
+                    patient_id=appt.patient_id,
+                    department_id=appt.department_id,
+                    doctor_id=appt.doctor_id,
+                    appointment_id=appt.id,
+                    symptoms=appt.symptoms
+                )
+                appt.status = 'waiting'
+                synced += 1
+            except Exception as e:
+                flash(f"Error syncing {appt.patient.name}: {str(e)}", "danger")
+    
+    db.session.commit()
+    
+    if synced > 0:
+        flash(f"✅ Synced {synced} appointment(s) to queue", "success")
+    else:
+        flash("All appointments are already in queue", "info")
+    
+    return redirect(url_for("queue.view_queue"))
+
+
+@queue_bp.route("/patient/<int:patient_id>")
+@admin_required
+def patient_details(patient_id):
+    """View detailed patient information."""
+    from app.models.models import Appointment
+    
+    # Get patient
+    patient = Patient.query.get_or_404(patient_id)
+    
+    # Get current queue entry (today's visit)
+    today = date.today()
+    current_queue = QueueEntry.query.filter_by(
+        patient_id=patient_id,
+        queue_date=today
+    ).first()
+    
+    # Get priority info if in queue
+    priority = None
+    if current_queue:
+        priority_scorer = PriorityScorer()
+        priority = priority_scorer.get_priority_label(current_queue.priority_score)
+    
+    # Get appointment history (all appointments, ordered by date desc)
+    appointments = Appointment.query.filter_by(
+        patient_id=patient_id
+    ).order_by(
+        Appointment.appointment_date.desc(),
+        Appointment.appointment_time.desc()
+    ).all()
+    
+    return render_template(
+        "patient_details.html",
+        patient=patient,
+        current_queue=current_queue,
+        priority=priority,
+        appointments=appointments
+    )
+

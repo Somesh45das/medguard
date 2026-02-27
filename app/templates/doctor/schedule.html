@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}My Schedule – SmartCare{% endblock %}
+{% block page_title %}<i class="bi bi-calendar-week me-2"></i>My Schedule{% endblock %}
+
+{% block content %}
+<!-- Week Navigation -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="mb-0">{{ week_start.strftime('%B %d') }} - {{ week_end.strftime('%B %d, %Y') }}</h5>
+    </div>
+    <div class="btn-group">
+        <a href="{{ url_for('doctor_portal.schedule', week=week_offset-1) }}" class="btn btn-outline-primary">
+            <i class="bi bi-chevron-left"></i> Previous Week
+        </a>
+        <a href="{{ url_for('doctor_portal.schedule', week=0) }}" class="btn btn-outline-primary">
+            This Week
+        </a>
+        <a href="{{ url_for('doctor_portal.schedule', week=week_offset+1) }}" class="btn btn-outline-primary">
+            Next Week <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+</div>
+
+<!-- Weekly Schedule -->
+<div class="row g-3">
+    {% for day, appointments in schedule_by_day.items() %}
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header {% if day == today %}bg-primary text-white{% else %}bg-white{% endif %} py-3">
+                <h6 class="mb-0">
+                    {{ day.strftime('%A, %B %d, %Y') }}
+                    {% if day == today %}
+                        <span class="badge bg-light text-primary ms-2">Today</span>
+                    {% endif %}
+                    <span class="badge bg-secondary ms-2">{{ appointments|length }} appointments</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if appointments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Age/Gender</th>
+                                <th>Symptoms</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in appointments %}
+                            <tr>
+                                <td>
+                                    <strong>{{ appointment.appointment_time.strftime('%I:%M %p') }}</strong><br>
+                                    <small class="text-muted">{{ appointment.slot_end_time.strftime('%I:%M %p') }}</small>
+                                </td>
+                                <td>{{ appointment.patient.name }}</td>
+                                <td>{{ appointment.patient.age }}y, {{ appointment.patient.gender }}</td>
+                                <td>{{ appointment.symptoms[:40] if appointment.symptoms else '-' }}</td>
+                                <td>
+                                    {% set priority = appointment.priority_score %}
+                                    {% if priority >= 70 %}
+                                        <span class="badge bg-danger">🔴 {{ priority }}</span>
+                                    {% elif priority >= 45 %}
+                                        <span class="badge bg-warning">🟠 {{ priority }}</span>
+                                    {% elif priority >= 20 %}
+                                        <span class="badge" style="background-color: #ffc107;">🟡 {{ priority }}</span>
+                                    {% else %}
+                                        <span class="badge bg-success">🟢 {{ priority }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if appointment.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif appointment.status == 'in_progress' %}
+                                        <span class="badge bg-warning">In Progress</span>
+                                    {% elif appointment.status == 'checked_in' %}
+                                        <span class="badge bg-info">Checked In</span>
+                                    {% elif appointment.status == 'scheduled' or appointment.status == 'waiting' %}
+                                        <span class="badge bg-secondary">Scheduled</span>
+                                    {% elif appointment.status == 'cancelled' %}
+                                        <span class="badge bg-danger">Cancelled</span>
+                                    {% elif appointment.status == 'no_show' %}
+                                        <span class="badge bg-dark">No Show</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('doctor_portal.appointment_detail', appointment_id=appointment.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-calendar-x fs-1"></i>
+                    <p class="mt-2">No appointments scheduled for this day</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

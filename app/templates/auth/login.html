@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,8 +15,9 @@
         }
 
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Outfit', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #0B0F19;
+            color: #F8FAFC;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -26,24 +28,27 @@
         /* Animated Background */
         body::before {
             content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-            animation: backgroundMove 20s ease-in-out infinite;
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 40%);
             pointer-events: none;
+            z-index: 0;
+            animation: backgroundMove 30s ease-in-out infinite alternate;
         }
 
         @keyframes backgroundMove {
-            0%, 100% {
-                transform: translate(0, 0);
+            0% {
+                transform: translate(0, 0) scale(1);
             }
-            50% {
-                transform: translate(20px, 20px);
+
+            100% {
+                transform: translate(-5%, -5%) scale(1.1);
             }
         }
 
@@ -51,7 +56,7 @@
         .shape {
             position: absolute;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             animation: float 20s ease-in-out infinite;
         }
 
@@ -80,9 +85,12 @@
         }
 
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0) rotate(0deg);
             }
+
             50% {
                 transform: translateY(-30px) rotate(180deg);
             }
@@ -99,10 +107,12 @@
         }
 
         .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             animation: slideUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
@@ -112,6 +122,7 @@
                 opacity: 0;
                 transform: translateY(50px) scale(0.9);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
@@ -119,10 +130,12 @@
         }
 
         .login-left {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            color: #F8FAFC;
             padding: 60px 40px;
             position: relative;
+            height: 100%;
             overflow: hidden;
         }
 
@@ -133,7 +146,7 @@
             right: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
             animation: rotate 30s linear infinite;
         }
 
@@ -141,6 +154,7 @@
             from {
                 transform: rotate(0deg);
             }
+
             to {
                 transform: rotate(360deg);
             }
@@ -164,10 +178,13 @@
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
                 box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
             }
+
             50% {
                 transform: scale(1.05);
                 box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
@@ -180,9 +197,12 @@
         }
 
         @keyframes bounce {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0);
             }
+
             50% {
                 transform: translateY(-10px);
             }
@@ -196,15 +216,24 @@
             animation-fill-mode: both;
         }
 
-        .feature-item:nth-child(1) { animation-delay: 0.2s; }
-        .feature-item:nth-child(2) { animation-delay: 0.4s; }
-        .feature-item:nth-child(3) { animation-delay: 0.6s; }
+        .feature-item:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .feature-item:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .feature-item:nth-child(3) {
+            animation-delay: 0.6s;
+        }
 
         @keyframes slideInLeft {
             from {
                 opacity: 0;
                 transform: translateX(-30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -230,26 +259,28 @@
         .role-badge {
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border: 2px solid transparent;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+            color: #F8FAFC;
         }
 
         .role-badge:hover {
             transform: translateY(-8px) scale(1.05);
-            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
-            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            border-color: #8b5cf6;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .role-badge.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
         }
 
         .role-icon {
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -260,24 +291,32 @@
         }
 
         .form-control {
-            border: 2px solid #e0e0e0;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #F8FAFC;
             border-radius: 12px;
             padding: 14px 16px;
             transition: all 0.3s;
             font-size: 15px;
         }
 
+        .form-control::placeholder {
+            color: #94A3B8;
+        }
+
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #F8FAFC;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
         }
 
         .input-group-text {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            border: 2px solid #e0e0e0;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-right: none;
             border-radius: 12px 0 0 12px;
-            color: #667eea;
+            color: #8b5cf6;
         }
 
         .input-group .form-control {
@@ -286,7 +325,7 @@
         }
 
         .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
             border: none;
             border-radius: 12px;
             padding: 14px;
@@ -296,6 +335,7 @@
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
         }
 
         .btn-login::before {
@@ -318,13 +358,14 @@
 
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            color: white;
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.5);
         }
 
         .btn-register {
-            background: white;
-            border: 2px solid #667eea;
-            color: #667eea;
+            background: transparent;
+            border: 1px solid #8b5cf6;
+            color: #8b5cf6;
             border-radius: 12px;
             padding: 10px 24px;
             font-weight: 600;
@@ -332,32 +373,40 @@
         }
 
         .btn-register:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
             color: white;
+            border-color: transparent;
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.3);
         }
 
         .demo-box {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            background: rgba(16, 185, 129, 0.1);
             border-left: 4px solid #10b981;
             border-radius: 12px;
             padding: 16px;
             animation: fadeIn 0.6s ease-out 0.8s both;
+            color: #94A3B8;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
         }
 
+        .form-check-input {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
         .form-check-input:checked {
-            background-color: #667eea;
-            border-color: #667eea;
+            background-color: #8b5cf6;
+            border-color: #8b5cf6;
         }
 
         .alert {
@@ -371,6 +420,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -420,6 +470,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Floating Shapes -->
     <div class="shape shape1"></div>
@@ -437,7 +488,7 @@
                                 <div class="welcome-icon">
                                     <i class="bi bi-heart-pulse-fill"></i>
                                 </div>
-                                
+
                                 <h2 class="text-center mb-2">Welcome Back!</h2>
                                 <p class="text-center mb-5 opacity-75">Your health, our priority</p>
 
@@ -478,27 +529,30 @@
                     <div class="col-lg-7">
                         <div class="login-right">
                             <div class="text-center mb-4">
-                                <h3 class="mb-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                                <h3 class="mb-2"
+                                    style="background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                                     SmartCare Hospital
                                 </h3>
-                                <p class="text-muted">Sign in to continue</p>
+                                <p class="text-secondary">Sign in to continue</p>
                             </div>
 
                             {% with messages = get_flashed_messages(with_categories=true) %}
-                                {% if messages %}
-                                    {% for category, message in messages %}
-                                        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show">
-                                            <i class="bi bi-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }} me-2"></i>
-                                            {{ message }}
-                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
+                            {% if messages %}
+                            {% for category, message in messages %}
+                            <div
+                                class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show">
+                                <i
+                                    class="bi bi-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
                             {% endwith %}
 
                             <!-- Role Selection -->
                             <div class="mb-4">
-                                <p class="text-center text-muted small mb-3">Select your role</p>
+                                <p class="text-center text-secondary small mb-3">Select your role</p>
                                 <div class="row g-3">
                                     <div class="col-6">
                                         <div class="card role-badge text-center p-3" onclick="selectRole('patient')">
@@ -506,7 +560,7 @@
                                                 <i class="bi bi-person"></i>
                                             </div>
                                             <strong>Patient</strong>
-                                            <small class="text-muted">Book & Track</small>
+                                            <small class="text-secondary">Book & Track</small>
                                         </div>
                                     </div>
                                     <div class="col-6">
@@ -515,28 +569,29 @@
                                                 <i class="bi bi-shield-lock"></i>
                                             </div>
                                             <strong>Admin</strong>
-                                            <small class="text-muted">Manage System</small>
+                                            <small class="text-secondary">Manage System</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Login Form -->
-                            <form method="POST" novalidate id="loginForm">
+                            <form method="POST" action="{{ url_for('auth.login') }}" novalidate id="loginForm">
                                 {{ form.hidden_tag() }}
-                                
+
                                 <div class="mb-3">
                                     {{ form.email.label(class="form-label fw-semibold") }}
                                     <div class="input-group">
                                         <span class="input-group-text">
                                             <i class="bi bi-envelope"></i>
                                         </span>
-                                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="your.email@example.com") }}
+                                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else
+                                        ""), placeholder="your.email@example.com") }}
                                     </div>
                                     {% if form.email.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            <i class="bi bi-exclamation-circle me-1"></i>{{ form.email.errors[0] }}
-                                        </div>
+                                    <div class="invalid-feedback d-block">
+                                        <i class="bi bi-exclamation-circle me-1"></i>{{ form.email.errors[0] }}
+                                    </div>
                                     {% endif %}
                                 </div>
 
@@ -546,21 +601,23 @@
                                         <span class="input-group-text">
                                             <i class="bi bi-lock"></i>
                                         </span>
-                                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Enter your password") }}
+                                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors
+                                        else ""), placeholder="Enter your password") }}
                                     </div>
                                     {% if form.password.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            <i class="bi bi-exclamation-circle me-1"></i>{{ form.password.errors[0] }}
-                                        </div>
+                                    <div class="invalid-feedback d-block">
+                                        <i class="bi bi-exclamation-circle me-1"></i>{{ form.password.errors[0] }}
+                                    </div>
                                     {% endif %}
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <div class="form-check">
                                         {{ form.remember_me(class="form-check-input") }}
-                                        {{ form.remember_me.label(class="form-check-label") }}
+                                        {{ form.remember_me.label(class="form-check-label text-secondary") }}
                                     </div>
-                                    <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none small" style="color: #667eea;">
+                                    <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none small"
+                                        style="color: #8b5cf6;">
                                         Forgot Password?
                                     </a>
                                 </div>
@@ -574,7 +631,7 @@
                             </form>
 
                             <div class="text-center mb-4">
-                                <p class="text-muted small mb-2">Don't have an account?</p>
+                                <p class="text-secondary small mb-2">Don't have an account?</p>
                                 <a href="{{ url_for('auth.register') }}" class="btn btn-register">
                                     <i class="bi bi-person-plus me-2"></i>Register as Patient
                                 </a>
@@ -619,14 +676,14 @@
         }
 
         // Form submission animation
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
             const btn = this.querySelector('.btn-login');
             btn.classList.add('loading');
             btn.querySelector('span').textContent = 'Signing in...';
         });
 
         // Auto-dismiss alerts after 5 seconds
-        setTimeout(function() {
+        setTimeout(function () {
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 const bsAlert = new bootstrap.Alert(alert);
@@ -635,4 +692,5 @@
         }, 5000);
     </script>
 </body>
+
 </html>

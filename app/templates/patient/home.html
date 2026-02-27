@@ -1,139 +1,174 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartCare Hospital - Patient Portal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 80px 0;
-            text-align: center;
-        }
-        .feature-card {
-            transition: transform 0.3s;
-            height: 100%;
-        }
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
-        .action-btn {
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            border-radius: 50px;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('patient_portal.home') }}">
-                <i class="bi bi-hospital"></i> SmartCare Hospital
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('patient_portal.home') }}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('patient_portal.book') }}">Book Appointment</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('patient_portal.check_status') }}">Check Status</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.login') }}">Staff Login</a>
-                    </li>
-                </ul>
+{% extends "base.html" %}
+
+{% block title %}Patient Portal - SmartCare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h1 class="display-4 mb-3">Welcome to SmartCare</h1>
+            <p class="lead">Your health, our priority. Book appointments, check status, and manage your healthcare journey with ease.</p>
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="{{ url_for('patient_portal.book') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-calendar-plus"></i> Book Appointment
+                </a>
+                <a href="{{ url_for('patient_portal.check_status') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-search"></i> Check Status
+                </a>
             </div>
         </div>
-    </nav>
-
-    <div class="hero-section">
-        <div class="container">
-            <h1 class="display-4 fw-bold mb-4">Welcome to SmartCare Hospital</h1>
-            <p class="lead mb-5">Book appointments online and receive instant SMS confirmations</p>
-            <div class="d-flex gap-3 justify-content-center">
-                <a href="{{ url_for('patient_portal.book') }}" class="btn btn-light btn-lg action-btn">
-                    <i class="bi bi-calendar-plus me-2"></i>Book Appointment
-                </a>
-                <a href="{{ url_for('patient_portal.check_status') }}" class="btn btn-outline-light btn-lg action-btn">
-                    <i class="bi bi-search me-2"></i>Check Status
-                </a>
-            </div>
+        <div class="col-lg-6 text-center">
+            <i class="fas fa-hospital fa-10x text-primary" style="opacity: 0.1;"></i>
         </div>
     </div>
 
-    <div class="container my-5">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card feature-card border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="bi bi-calendar-check text-primary" style="font-size: 3rem;"></i>
-                        </div>
-                        <h5 class="card-title">Easy Booking</h5>
-                        <p class="card-text text-muted">Book appointments online in just a few clicks. Choose your preferred doctor and time slot.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card feature-card border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="bi bi-phone text-success" style="font-size: 3rem;"></i>
-                        </div>
-                        <h5 class="card-title">SMS Confirmation</h5>
-                        <p class="card-text text-muted">Receive instant SMS with all appointment details including date, time, and doctor information.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card feature-card border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="bi bi-clock-history text-warning" style="font-size: 3rem;"></i>
-                        </div>
-                        <h5 class="card-title">Smart Scheduling</h5>
-                        <p class="card-text text-muted">AI-powered system suggests best time slots to minimize your waiting time.</p>
-                    </div>
+    <!-- Features -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Our Services</h2>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-calendar-check fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Easy Booking</h5>
+                    <p class="card-text">Book appointments online in just a few clicks. Choose your preferred doctor and time slot.</p>
+                    <a href="{{ url_for('patient_portal.book') }}" class="btn btn-outline-primary">Book Now</a>
                 </div>
             </div>
         </div>
-
-        <div class="row mt-5">
-            <div class="col-md-6 mx-auto">
-                <div class="card border-0 shadow-sm bg-light">
-                    <div class="card-body p-4">
-                        <h5 class="card-title text-center mb-4">
-                            <i class="bi bi-info-circle me-2"></i>How It Works
-                        </h5>
-                        <ol class="list-group list-group-numbered list-group-flush">
-                            <li class="list-group-item bg-transparent">Select your department and preferred doctor</li>
-                            <li class="list-group-item bg-transparent">Choose an available time slot</li>
-                            <li class="list-group-item bg-transparent">Enter your details and phone number</li>
-                            <li class="list-group-item bg-transparent">Receive instant SMS confirmation</li>
-                            <li class="list-group-item bg-transparent">Visit hospital at scheduled time</li>
-                        </ol>
-                    </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Real-Time Updates</h5>
+                    <p class="card-text">Track your appointment status and get estimated wait times in real-time.</p>
+                    <a href="{{ url_for('patient_portal.check_status') }}" class="btn btn-outline-success">Check Status</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-user-md fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Expert Doctors</h5>
+                    <p class="card-text">Access to experienced doctors across multiple specializations and departments.</p>
+                    <a href="#departments" class="btn btn-outline-info">View Departments</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="bg-dark text-white py-4 mt-5">
-        <div class="container text-center">
-            <p class="mb-0">&copy; 2026 SmartCare Hospital. All rights reserved.</p>
-            <p class="small text-muted">For emergencies, call: +91-1800-XXX-XXXX</p>
+    <!-- Departments -->
+    <div class="row mb-5" id="departments">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Our Departments</h2>
         </div>
-    </footer>
+        {% set departments = [] %}
+        {% if departments %}
+        {% for dept in departments %}
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title">{{ dept.name }}</h6>
+                    <p class="text-muted small">Floor {{ dept.floor }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <i class="fas fa-heartbeat fa-2x text-danger mb-2"></i>
+                            <h6>Cardiology</h6>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <i class="fas fa-brain fa-2x text-primary mb-2"></i>
+                            <h6>Neurology</h6>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <i class="fas fa-bone fa-2x text-warning mb-2"></i>
+                            <h6>Orthopedics</h6>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <i class="fas fa-baby fa-2x text-info mb-2"></i>
+                            <h6>Pediatrics</h6>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <i class="fas fa-stethoscope fa-2x text-success mb-2"></i>
+                            <h6>General Medicine</h6>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <i class="fas fa-eye fa-2x text-secondary mb-2"></i>
+                            <h6>Ophthalmology</h6>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <i class="fas fa-tooth fa-2x text-primary mb-2"></i>
+                            <h6>Dentistry</h6>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <i class="fas fa-user-nurse fa-2x text-danger mb-2"></i>
+                            <h6>ENT</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- CTA Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center py-5">
+                    <h3>Already have an account?</h3>
+                    <p class="lead">Login to access your dashboard and manage appointments</p>
+                    <div class="d-grid gap-2 d-md-flex justify-content-center">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Need Help?</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Contact Information:</h6>
+                            <p>
+                                <i class="fas fa-phone"></i> Emergency: 108<br>
+                                <i class="fas fa-phone-alt"></i> Reception: +91-XXXXXXXXXX<br>
+                                <i class="fas fa-envelope"></i> Email: info@smartcare.com
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Quick Assistance:</h6>
+                            <p>Use our AI chatbot for instant help with booking, status checks, and general queries.</p>
+                            <button class="btn btn-primary" onclick="document.getElementById('chatbot-button').click()">
+                                <i class="fas fa-comments"></i> Chat with Assistant
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

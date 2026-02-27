@@ -50,3 +50,17 @@ class Config:
     ENABLE_NOTIFICATIONS = True
     HIGH_CROWD_THRESHOLD = 0.75   # 75% capacity = high crowd
     CRITICAL_CROWD_THRESHOLD = 0.90
+
+    # SMS Configuration
+    SMS_ENABLED = os.environ.get("SMS_ENABLED", "False").lower() == "true"
+    SMS_PROVIDER = os.environ.get("SMS_PROVIDER", "simulation")  # "twilio", "aws_sns", or "simulation"
+    
+    # Twilio Configuration (if using Twilio)
+    TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "")
+    TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "")
+    TWILIO_PHONE_NUMBER = os.environ.get("TWILIO_PHONE_NUMBER", "")
+    
+    # AWS SNS Configuration (if using AWS SNS)
+    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "")
+    AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")

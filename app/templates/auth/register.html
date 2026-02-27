@@ -6,68 +6,76 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fas fa-user-plus"></i> Patient Registration</h4>
+            <div class="card shadow glass-card">
+                <div class="card-header bg-transparent border-bottom border-secondary text-white">
+                    <h4 class="mb-0 gradient-text"><i class="fas fa-user-plus"></i> Patient Registration</h4>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted mb-4">Create your patient account to book appointments online.</p>
-                    
+                    <p class="text-secondary mb-4">Create your patient account to book appointments online.</p>
+
                     <form method="POST" action="{{ url_for('auth.register') }}">
                         {{ form.hidden_tag() }}
-                        
+
                         <div class="mb-3">
                             {{ form.name.label(class="form-label") }}
-                            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), placeholder="Enter your full name") }}
+                            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""),
+                            placeholder="Enter your full name") }}
                             {% if form.name.errors %}
-                                <div class="invalid-feedback">{{ form.name.errors[0] }}</div>
+                            <div class="invalid-feedback">{{ form.name.errors[0] }}</div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.email.label(class="form-label") }}
-                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="your.email@example.com") }}
+                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""),
+                            placeholder="your.email@example.com") }}
                             {% if form.email.errors %}
-                                <div class="invalid-feedback">{{ form.email.errors[0] }}</div>
+                            <div class="invalid-feedback">{{ form.email.errors[0] }}</div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.phone.label(class="form-label") }}
-                            {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), placeholder="+91-XXXXXXXXXX") }}
+                            {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""),
+                            placeholder="+91-XXXXXXXXXX") }}
                             {% if form.phone.errors %}
-                                <div class="invalid-feedback">{{ form.phone.errors[0] }}</div>
+                            <div class="invalid-feedback">{{ form.phone.errors[0] }}</div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.password.label(class="form-label") }}
-                            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Minimum 8 characters") }}
+                            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""),
+                            placeholder="Minimum 8 characters") }}
                             {% if form.password.errors %}
-                                <div class="invalid-feedback">{{ form.password.errors[0] }}</div>
+                            <div class="invalid-feedback">{{ form.password.errors[0] }}</div>
                             {% endif %}
-                            <small class="form-text text-muted">Use at least 8 characters with a mix of letters and numbers.</small>
+                            <small class="form-text text-muted">Use at least 8 characters with a mix of letters and
+                                numbers.</small>
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.confirm_password.label(class="form-label") }}
-                            {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Re-enter password") }}
+                            {{ form.confirm_password(class="form-control" + (" is-invalid" if
+                            form.confirm_password.errors else ""), placeholder="Re-enter password") }}
                             {% if form.confirm_password.errors %}
-                                <div class="invalid-feedback">{{ form.confirm_password.errors[0] }}</div>
+                            <div class="invalid-feedback">{{ form.confirm_password.errors[0] }}</div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-user-plus"></i> Register
-                            </button>
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-user-plus"></i> Register
+                                </button>
                         </div>
                     </form>
-                    
-                    <hr class="my-4">
-                    
+
+                    <hr class="my-4 border-secondary">
+
                     <div class="text-center">
-                        <p class="mb-0">Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+                        <p class="mb-0 text-secondary">Already have an account? <a href="{{ url_for('auth.login') }}"
+                                class="text-primary text-decoration-none">Login here</a></p>
                     </div>
                 </div>
             </div>

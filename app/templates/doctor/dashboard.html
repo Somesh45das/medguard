@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}Doctor Dashboard – SmartCare{% endblock %}
+{% block page_title %}<i class="bi bi-person-badge me-2"></i>Dr. {{ doctor.name }} - Dashboard{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Total Today</h6>
+                        <h3 class="mb-0">{{ total_today }}</h3>
+                    </div>
+                    <div class="text-primary fs-1">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Completed</h6>
+                        <h3 class="mb-0 text-success">{{ completed }}</h3>
+                    </div>
+                    <div class="text-success fs-1">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">In Progress</h6>
+                        <h3 class="mb-0 text-warning">{{ in_progress }}</h3>
+                    </div>
+                    <div class="text-warning fs-1">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Waiting</h6>
+                        <h3 class="mb-0 text-info">{{ scheduled + checked_in }}</h3>
+                    </div>
+                    <div class="text-info fs-1">
+                        <i class="bi bi-people"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Current Queue -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-list-ol me-2"></i>Current Queue</h5>
+                    <a href="{{ url_for('doctor_portal.queue') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if current_queue %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Token</th>
+                                    <th>Patient</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in current_queue[:5] %}
+                                <tr>
+                                    <td><strong>{{ entry.token_number }}</strong></td>
+                                    <td>{{ entry.patient.name }}</td>
+                                    <td>
+                                        {% set priority = entry.priority_score %}
+                                        {% if priority >= 70 %}
+                                            <span class="badge bg-danger">🔴 CRITICAL</span>
+                                        {% elif priority >= 45 %}
+                                            <span class="badge bg-warning">🟠 HIGH</span>
+                                        {% elif priority >= 20 %}
+                                            <span class="badge" style="background-color: #ffc107;">🟡 MEDIUM</span>
+                                        {% else %}
+                                            <span class="badge bg-success">🟢 NORMAL</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if entry.status == 'waiting' %}
+                                            <span class="badge bg-secondary">Waiting</span>
+                                        {% elif entry.status == 'called' %}
+                                            <span class="badge bg-info">Called</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('doctor_portal.call_next_patient', queue_id=entry.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-primary">Call</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1"></i>
+                        <p class="mt-2">No patients in queue</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Today's Appointments -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-calendar-day me-2"></i>Today's Schedule</h5>
+                    <a href="{{ url_for('doctor_portal.appointments') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if today_appointments %}
+                    <div class="list-group list-group-flush">
+                        {% for appointment in today_appointments[:5] %}
+                        <a href="{{ url_for('doctor_portal.appointment_detail', appointment_id=appointment.id) }}" 
+                           class="list-group-item list-group-item-action border-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ appointment.patient.name }}</h6>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock me-1"></i>{{ appointment.appointment_time.strftime('%I:%M %p') }}
+                                    </small>
+                                    {% if appointment.symptoms %}
+                                    <br><small class="text-muted">{{ appointment.symptoms[:50] }}...</small>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    {% if appointment.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif appointment.status == 'in_progress' %}
+                                        <span class="badge bg-warning">In Progress</span>
+                                    {% elif appointment.status == 'checked_in' %}
+                                        <span class="badge bg-info">Checked In</span>
+                                    {% elif appointment.status == 'scheduled' or appointment.status == 'waiting' %}
+                                        <span class="badge bg-secondary">Scheduled</span>
+                                    {% elif appointment.status == 'cancelled' %}
+                                        <span class="badge bg-danger">Cancelled</span>
+                                    {% elif appointment.status == 'no_show' %}
+                                        <span class="badge bg-dark">No Show</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-calendar-x fs-1"></i>
+                        <p class="mt-2">No appointments scheduled for today</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming Appointments -->
+{% if upcoming %}
+<div class="row g-3 mt-3">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0"><i class="bi bi-calendar-week me-2"></i>Upcoming Appointments (Next 7 Days)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Symptoms</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in upcoming %}
+                            <tr>
+                                <td>{{ appointment.appointment_date.strftime('%b %d, %Y') }}</td>
+                                <td>{{ appointment.appointment_time.strftime('%I:%M %p') }}</td>
+                                <td>
+                                    <a href="{{ url_for('doctor_portal.appointment_detail', appointment_id=appointment.id) }}">
+                                        {{ appointment.patient.name }}
+                                    </a>
+                                </td>
+                                <td>{{ appointment.symptoms[:50] if appointment.symptoms else '-' }}</td>
+                                <td><span class="badge bg-secondary">Scheduled</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

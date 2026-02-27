@@ -107,14 +107,15 @@ class HospitalChatbot:
                 r'\bdoctor availability\b',
             ],
             'high_risk_patients': [
-                r'\b(high risk|priority|urgent|critical).*(patient|case)\b',
+                r'\b(high.?risk|priority|urgent|critical).*(patient|case)\b',
                 r'\bpriority patients\b',
-                r'\bhigh risk\b',
+                r'\bhigh.?risk\b',
+                r'\bhigh risk patients\b',
             ],
             'noshow_prediction': [
                 r'\b(no.?show|miss|skip).*(predict|risk|likely)\b',
                 r'\bpredict.*(no.?show|miss)\b',
-                r'\bno.?show prediction\b',
+                r'\bno.?show\b',
             ],
             'crowd_forecast': [
                 r'\b(crowd|traffic).*(forecast|predict|tomorrow)\b',
@@ -639,54 +640,100 @@ class HospitalChatbot:
             ],
             'type': 'unknown'
         }
-
-
-# Example usage
-if __name__ == "__main__":
-    bot = HospitalChatbot()
     
-    # Test conversations
-    test_messages = [
-        "Hello",
-        "I want to book an appointment",
-        "Find me a cardiologist",
-        "What's the wait time?",
-        "Check my appointment status for 9876543210",
-        "Thanks!"
-    ]
+    # ===== MANAGEMENT-SPECIFIC HANDLERS =====
     
-    print("=" * 60)
-    print("   HOSPITAL CHATBOT TEST")
-    print("=" * 60)
+    def _handle_queue_stats(self) -> dict:
+        """Handle queue statistics queries."""
+        return ManagementHandlers.handle_queue_stats()
     
-    for msg in test_messages:
-        print(f"\nUser: {msg}")
-        response = bot.process_message(msg)
-        print(f"Bot: {response['response']}")
-        if response.get('suggestions'):
-            print(f"Suggestions: {', '.join(response['suggestions'][:3])}")
-        print("-" * 60)
-
+    def _handle_today_summary(self) -> dict:
+        """Handle today's summary report."""
+        return ManagementHandlers.handle_today_summary()
     
-    # ===== PATIENT-SPECIFIC HANDLERS =====
+    def _handle_high_risk_patients(self) -> dict:
+        """Handle high-risk patient queries."""
+        return ManagementHandlers.handle_high_risk_patients()
+    
+    def _handle_department_performance(self) -> dict:
+        """Handle department performance queries."""
+        return ManagementHandlers.handle_department_performance()
+    
+    def _handle_doctor_availability(self) -> dict:
+        """Handle doctor availability queries."""
+        return ManagementHandlers.handle_doctor_availability()
+    
+    def _handle_noshow_prediction(self) -> dict:
+        """Handle no-show prediction queries."""
+        return ManagementHandlers.handle_noshow_prediction()
+    
+    def _handle_crowd_forecast(self) -> dict:
+        """Handle crowd forecast queries."""
+        return ManagementHandlers.handle_crowd_forecast()
+    
+    def _handle_management_help(self) -> dict:
+        """Handle management help requests."""
+        return {
+            'response': "📊 Management Dashboard Help\n\n"
+                       "I can provide:\n"
+                       "• Queue statistics and wait times\n"
+                       "• Today's summary and reports\n"
+                       "• Department performance metrics\n"
+                       "• Doctor availability status\n"
+                       "• High-risk patient alerts\n"
+                       "• No-show predictions\n"
+                       "• Crowd forecasts\n\n"
+                       "What would you like to know?",
+            'suggestions': [
+                "Queue statistics",
+                "Today's summary",
+                "High-risk patients",
+                "Department performance",
+                "Crowd forecast"
+            ],
+            'type': 'help',
+            'role': 'management'
+        }
+    
+    def _handle_management_unknown(self, message: str) -> dict:
+        """Handle unknown management messages."""
+        return {
+            'response': "I'm not sure I understood that. 🤔\n\n"
+                       "I can help you with:\n"
+                       "• Queue statistics\n"
+                       "• Today's summary\n"
+                       "• Department performance\n"
+                       "• Doctor availability\n"
+                       "• High-risk patients\n"
+                       "• No-show predictions\n"
+                       "• Crowd forecasts\n\n"
+                       "What would you like to know?",
+            'suggestions': [
+                "Queue statistics",
+                "Today's summary",
+                "High-risk patients",
+                "Department performance"
+            ],
+            'type': 'unknown',
+            'role': 'management'
+        }
     
     def _handle_estimated_time(self, message: str) -> dict:
-        """Handle estimated appointment time queries."""
+        """Handle estimated time queries."""
         return PatientHandlers.handle_estimated_time(message, self.context)
     
     def _handle_precautions(self, message: str) -> dict:
-        """Handle precautions and preparation advice."""
+        """Handle precautions queries."""
         return PatientHandlers.handle_precautions(message, self.context)
     
     def _handle_patient_help(self) -> dict:
         """Handle patient help requests."""
         return {
-            'response': "I can help you with:\n\n"
-                       "📅 Book appointments\n"
-                       "🔍 Check appointment status\n"
-                       "⏰ Get estimated appointment time\n"
-                       "📋 View precautions & preparation\n"
-                       "👨‍⚕️ Find doctors\n"
+            'response': "I'm here to help! 😊\n\n"
+                       "I can assist you with:\n"
+                       "📅 Booking appointments\n"
+                       "🔍 Checking appointment status\n"
+                       "👨‍⚕️ Finding doctors\n"
                        "⏱️ Get wait time estimates\n"
                        "🏥 View departments\n"
                        "📊 Check crowd predictions\n\n"
@@ -723,248 +770,30 @@ if __name__ == "__main__":
             'type': 'unknown',
             'role': 'patient'
         }
+
+
+# Example usage
+if __name__ == "__main__":
+    bot = HospitalChatbot()
     
-    # ===== MANAGEMENT-SPECIFIC HANDLERS =====
+    # Test conversations
+    test_messages = [
+        "Hello",
+        "I want to book an appointment",
+        "Find me a cardiologist",
+        "What's the wait time?",
+        "Check my appointment status for 9876543210",
+        "Thanks!"
+    ]
     
-    def _handle_queue_stats(self) -> dict:
-        """Handle queue statistics queries."""
-        return ManagementHandlers.handle_queue_stats()
+    print("=" * 60)
+    print("   HOSPITAL CHATBOT TEST")
+    print("=" * 60)
     
-    def _handle_today_summary(self) -> dict:
-        """Handle today's summary report."""
-        return ManagementHandlers.handle_today_summary()
-    
-    def _handle_high_risk_patients(self) -> dict:
-        """Handle high-risk patient queries."""
-        return ManagementHandlers.handle_high_risk_patients()
-    
-    def _handle_department_performance(self) -> dict:
-        """Handle department performance queries."""
-        from app import db
-        from sqlalchemy import func
-        
-        today = date.today()
-        
-        # Get department-wise stats
-        dept_stats = db.session.query(
-            Department.name,
-            func.count(Appointment.id).label('total'),
-            func.sum(func.case([(Appointment.status == 'completed', 1)], else_=0)).label('completed'),
-            func.sum(func.case([(Appointment.status == 'no_show', 1)], else_=0)).label('no_shows')
-        ).join(
-            Appointment, Department.id == Appointment.department_id
-        ).filter(
-            Appointment.appointment_date == today
-        ).group_by(Department.name).all()
-        
-        if dept_stats:
-            dept_list = []
-            for name, total, completed, no_shows in dept_stats[:5]:
-                completion_rate = round((completed/total*100) if total > 0 else 0, 1)
-                dept_list.append(
-                    f"• {name}:\n"
-                    f"  Total: {total} | Completed: {completed} | Rate: {completion_rate}%"
-                )
-            
-            dept_text = "\n".join(dept_list)
-            
-            return {
-                'response': f"📊 Department Performance Today:\n\n{dept_text}\n\n"
-                           f"💡 Use this data to optimize resource allocation.",
-                'suggestions': [
-                    "Queue statistics",
-                    "Doctor availability",
-                    "Today's summary",
-                    "Crowd forecast"
-                ],
-                'type': 'department_performance'
-            }
-        
-        return {
-            'response': "No department data available for today.",
-            'suggestions': ["Queue statistics", "Today's summary"],
-            'type': 'department_performance'
-        }
-    
-    def _handle_doctor_availability(self) -> dict:
-        """Handle doctor availability queries."""
-        available = Doctor.query.filter_by(is_available=True).all()
-        unavailable = Doctor.query.filter_by(is_available=False).count()
-        
-        if available:
-            doctor_list = []
-            for doc in available[:8]:
-                dept = Department.query.get(doc.department_id)
-                doctor_list.append(
-                    f"• Dr. {doc.name} - {dept.name if dept else 'N/A'}"
-                )
-            
-            doctor_text = "\n".join(doctor_list)
-            
-            return {
-                'response': f"👨‍⚕️ Doctor Availability:\n\n"
-                           f"✅ Available: {len(available)} doctors\n"
-                           f"❌ Unavailable: {unavailable} doctors\n\n"
-                           f"Currently Available:\n{doctor_text}",
-                'suggestions': [
-                    "Queue statistics",
-                    "Department performance",
-                    "Today's summary"
-                ],
-                'type': 'doctor_availability',
-                'data': {
-                    'available': len(available),
-                    'unavailable': unavailable
-                }
-            }
-        
-        return {
-            'response': "⚠️ No doctors currently marked as available.\n\n"
-                       "Please update doctor availability in the system.",
-            'suggestions': ["Manage doctors", "Queue statistics"],
-            'type': 'doctor_availability'
-        }
-    
-    def _handle_noshow_prediction(self) -> dict:
-        """Handle no-show prediction queries."""
-        today = date.today()
-        
-        # Get today's confirmed appointments
-        confirmed = Appointment.query.filter_by(
-            appointment_date=today,
-            status='confirmed'
-        ).limit(20).all()
-        
-        if confirmed:
-            high_risk_count = 0
-            predictions = []
-            
-            for appt in confirmed[:5]:
-                patient = Patient.query.get(appt.patient_id)
-                if patient:
-                    # Simplified no-show risk (would use ML model in production)
-                    risk_score = 0.3  # Placeholder
-                    
-                    if risk_score > 0.5:
-                        high_risk_count += 1
-                        predictions.append(
-                            f"• {patient.name} - {appt.appointment_time.strftime('%I:%M %p')} "
-                            f"(Risk: {round(risk_score*100)}%)"
-                        )
-            
-            if predictions:
-                pred_text = "\n".join(predictions)
-                return {
-                    'response': f"⚠️ No-Show Risk Analysis:\n\n"
-                               f"High-risk appointments: {high_risk_count}/{len(confirmed)}\n\n"
-                               f"{pred_text}\n\n"
-                               f"💡 Consider sending reminder SMS to these patients.",
-                    'suggestions': [
-                        "Send reminders",
-                        "Queue statistics",
-                        "Today's summary"
-                    ],
-                    'type': 'noshow_prediction',
-                    'data': {'high_risk_count': high_risk_count}
-                }
-        
-        return {
-            'response': "✅ Low no-show risk for today's appointments.\n\n"
-                       "All patients are likely to show up.",
-            'suggestions': ["Queue statistics", "Today's summary"],
-            'type': 'noshow_prediction'
-        }
-    
-    def _handle_crowd_forecast(self) -> dict:
-        """Handle crowd forecast queries."""
-        try:
-            tomorrow = date.today() + timedelta(days=1)
-            
-            # Get predictions for key hours
-            predictions = []
-            hours = [8, 10, 12, 14, 16]
-            
-            for hour in hours:
-                pred = self.crowd_predictor.predict_crowd_level(
-                    department_id=1,
-                    target_date=tomorrow,
-                    hour=hour
-                )
-                
-                time_label = f"{hour}:00 {'AM' if hour < 12 else 'PM'}"
-                emoji = {'low': '🟢', 'medium': '🟡', 'high': '🟠', 'critical': '🔴'}
-                predictions.append(
-                    f"{emoji.get(pred['level'], '⚪')} {time_label}: {pred['level'].title()}"
-                )
-            
-            pred_text = "\n".join(predictions)
-            
-            return {
-                'response': f"📊 Crowd Forecast for Tomorrow:\n"
-                           f"{tomorrow.strftime('%B %d, %Y')}\n\n"
-                           f"{pred_text}\n\n"
-                           f"💡 Recommendations:\n"
-                           f"• Schedule more staff during peak hours\n"
-                           f"• Prepare for high-volume periods\n"
-                           f"• Consider opening additional counters",
-                'suggestions': [
-                    "Queue statistics",
-                    "Doctor availability",
-                    "Department performance",
-                    "Today's summary"
-                ],
-                'type': 'crowd_forecast'
-            }
-        except Exception as e:
-            return {
-                'response': "Unable to generate crowd forecast at this time.\n\n"
-                           "Please try again later.",
-                'suggestions': ["Queue statistics", "Today's summary"],
-                'type': 'error'
-            }
-    
-    def _handle_management_help(self) -> dict:
-        """Handle management help requests."""
-        return {
-            'response': "I can help you with:\n\n"
-                       "📊 Queue statistics & live status\n"
-                       "📈 Today's summary report\n"
-                       "🏥 Department performance metrics\n"
-                       "👨‍⚕️ Doctor availability status\n"
-                       "🚨 High-risk patient alerts\n"
-                       "⚠️ No-show predictions\n"
-                       "📉 Crowd forecasts\n\n"
-                       "What would you like to know?",
-            'suggestions': [
-                "Queue statistics",
-                "Today's summary",
-                "High-risk patients",
-                "Department performance",
-                "Crowd forecast"
-            ],
-            'type': 'help',
-            'role': 'management'
-        }
-    
-    def _handle_management_unknown(self, message: str) -> dict:
-        """Handle unknown management messages."""
-        return {
-            'response': "I'm not sure I understood that. 🤔\n\n"
-                       "I can help you with:\n"
-                       "• Queue statistics\n"
-                       "• Today's summary\n"
-                       "• Department performance\n"
-                       "• Doctor availability\n"
-                       "• High-risk patients\n"
-                       "• Crowd forecasts\n\n"
-                       "What would you like to know?",
-            'suggestions': [
-                "Queue statistics",
-                "Today's summary",
-                "High-risk patients",
-                "Department performance",
-                "Get help"
-            ],
-            'type': 'unknown',
-            'role': 'management'
-        }
+    for msg in test_messages:
+        print(f"\nUser: {msg}")
+        response = bot.process_message(msg)
+        print(f"Bot: {response['response']}")
+        if response.get('suggestions'):
+            print(f"Suggestions: {', '.join(response['suggestions'][:3])}")
+        print("-" * 60)

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}My Profile – SmartCare{% endblock %}
+{% block page_title %}<i class="bi bi-person me-2"></i>My Profile{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <!-- Profile Information -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px; font-size: 40px;">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                </div>
+                <h4 class="mb-1">Dr. {{ doctor.name }}</h4>
+                <p class="text-muted mb-2">{{ doctor.specialization }}</p>
+                <span class="badge bg-secondary">{{ doctor.department.name }}</span>
+                <div class="mt-3">
+                    {% if doctor.is_available %}
+                        <span class="badge bg-success">
+                            <i class="bi bi-circle-fill" style="font-size:8px"></i> Available
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger">
+                            <i class="bi bi-circle-fill" style="font-size:8px"></i> Unavailable
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm mt-3">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="mb-0">Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Total Appointments</span>
+                        <strong>{{ total_appointments }}</strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Completed</span>
+                        <strong class="text-success">{{ completed_appointments }}</strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Avg. Consultation</span>
+                        <strong>{{ avg_consultation }} min</strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Rating</span>
+                        <strong>⭐ {{ doctor.rating }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Information -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0">Professional Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Specialization:</strong></p>
+                        <p class="text-muted">{{ doctor.specialization }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Department:</strong></p>
+                        <p class="text-muted">{{ doctor.department.name }}</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Experience:</strong></p>
+                        <p class="text-muted">{{ doctor.experience_years }} years</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Max Patients/Day:</strong></p>
+                        <p class="text-muted">{{ doctor.max_patients_per_day }}</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Shift Timing:</strong></p>
+                        <p class="text-muted">
+                            {{ doctor.shift_start.strftime('%I:%M %p') }} - {{ doctor.shift_end.strftime('%I:%M %p') }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Avg. Consultation Time:</strong></p>
+                        <p class="text-muted">{{ doctor.avg_consultation_min }} minutes</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Today's Patient Count:</strong></p>
+                        <p class="text-muted">{{ doctor.today_patient_count }} / {{ doctor.max_patients_per_day }}</p>
+                        <div class="progress" style="height: 8px;">
+                            {% set percentage = (doctor.today_patient_count / doctor.max_patients_per_day * 100) if doctor.max_patients_per_day > 0 else 0 %}
+                            <div class="progress-bar" style="width: {{ percentage }}%"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Availability:</strong></p>
+                        <p class="text-muted">{{ doctor.availability_percentage|round(1) }}% capacity remaining</p>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: {{ doctor.availability_percentage }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm mt-3">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0">Account Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Email:</strong></p>
+                        <p class="text-muted">{{ current_user.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Phone:</strong></p>
+                        <p class="text-muted">{{ current_user.phone if current_user.phone else 'Not provided' }}</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Account Created:</strong></p>
+                        <p class="text-muted">{{ current_user.created_at.strftime('%B %d, %Y') }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Last Login:</strong></p>
+                        <p class="text-muted">
+                            {% if current_user.last_login %}
+                                {{ current_user.last_login.strftime('%B %d, %Y %I:%M %p') }}
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

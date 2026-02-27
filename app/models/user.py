@@ -16,7 +16,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     phone = db.Column(db.String(15), nullable=True)
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default="user")  # user, admin
+    role = db.Column(db.String(20), nullable=False, default="user")  # user, admin, doctor
     is_active = db.Column(db.Boolean, default=True)
     is_verified = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -25,6 +25,10 @@ class User(UserMixin, db.Model):
     # Relationship to patient records
     patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"), nullable=True)
     patient = db.relationship("Patient", backref="user_account", uselist=False)
+    
+    # Relationship to doctor records
+    doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"), nullable=True)
+    doctor = db.relationship("Doctor", backref="user_account", uselist=False)
 
     def __repr__(self):
         return f"<User {self.email} - {self.role}>"
@@ -44,6 +48,10 @@ class User(UserMixin, db.Model):
     def is_user(self):
         """Check if user has user/patient role."""
         return self.role == "user"
+    
+    def is_doctor(self):
+        """Check if user has doctor role."""
+        return self.role == "doctor"
 
     def update_last_login(self):
         """Update last login timestamp."""

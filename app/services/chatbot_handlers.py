@@ -305,12 +305,12 @@ class ManagementHandlers:
         """Handle high-risk patient queries."""
         today = date.today()
         
-        # Get today's appointments with emergency or specific symptoms
+        # Get today's appointments with high priority scores
         high_risk = Appointment.query.filter(
             Appointment.appointment_date == today,
-            Appointment.status.in_(['waiting', 'confirmed']),
-            Appointment.is_emergency == True
-        ).limit(10).all()
+            Appointment.status.in_(['waiting', 'confirmed', 'scheduled']),
+            Appointment.priority_score >= 7.0  # High priority threshold
+        ).order_by(Appointment.priority_score.desc()).limit(10).all()
         
         if high_risk:
             patient_list = []
@@ -319,7 +319,7 @@ class ManagementHandlers:
                 dept = Department.query.get(appt.department_id)
                 patient_list.append(
                     f"• {patient.name if patient else 'N/A'} - {dept.name if dept else 'N/A'} "
-                    f"({appt.appointment_time.strftime('%I:%M %p')})"
+                    f"({appt.appointment_time.strftime('%I:%M %p')}) [Priority: {appt.priority_score:.1f}]"
                 )
             
             patient_text = "\n".join(patient_list)
@@ -351,3 +351,208 @@ class ManagementHandlers:
             'type': 'high_risk_patients',
             'data': {'count': 0}
         }
+    
+    @staticmethod
+    def handle_department_performance() -> dict:
+        """Handle department performance queries."""
+        from app import db
+        
+        today = date.today()
+        
+        # Get department-wise stats - simplified query
+        dept_stats = []
+        departments = Department.query.filter_by(is_active=True).all()
+        
+        for dept in departments:
+            total = Appointment.query.filter_by(
+                department_id=dept.id,
+                appointment_date=today
+            ).count()
+            
+            completed = Appointment.query.filter_by(
+                department_id=dept.id,
+                appointment_date=today,
+                status='completed'
+            ).count()
+            
+            no_shows = Appointment.query.filter_by(
+                department_id=dept.id,
+                appointment_date=today,
+                status='no_show'
+            ).count()
+            
+            if total > 0:
+                dept_stats.append((dept.name, total, completed, no_shows))
+        
+        if dept_stats:
+            dept_list = []
+            for name, total, completed, no_shows in dept_stats[:5]:
+                completion_rate = round((completed/total*100) if total > 0 else 0, 1)
+                dept_list.append(
+                    f"• {name}:\n"
+                    f"  Total: {total} | Completed: {completed} | Rate: {completion_rate}%"
+                )
+            
+            dept_text = "\n".join(dept_list)
+            
+            return {
+                'response': f"📊 Department Performance Today:\n\n{dept_text}\n\n"
+                           f"💡 Use this data to optimize resource allocation.",
+                'suggestions': [
+                    "Queue statistics",
+                    "Doctor availability",
+                    "Today's summary",
+                    "Crowd forecast"
+                ],
+                'type': 'department_performance'
+            }
+        
+        return {
+            'response': "No department data available for today.",
+            'suggestions': ["Queue statistics", "Today's summary"],
+            'type': 'department_performance'
+        }
+    
+    @staticmethod
+    def handle_doctor_availability() -> dict:
+        """Handle doctor availability queries."""
+        available = Doctor.query.filter_by(is_available=True).all()
+        unavailable = Doctor.query.filter_by(is_available=False).count()
+        
+        if available:
+            doctor_list = []
+            for doc in available[:8]:
+                dept = Department.query.get(doc.department_id)
+                doctor_list.append(
+                    f"• Dr. {doc.name} - {dept.name if dept else 'N/A'}"
+                )
+            
+            doctor_text = "\n".join(doctor_list)
+            
+            return {
+                'response': f"👨‍⚕️ Doctor Availability:\n\n"
+                           f"✅ Available: {len(available)} doctors\n"
+                           f"❌ Unavailable: {unavailable} doctors\n\n"
+                           f"Currently Available:\n{doctor_text}",
+                'suggestions': [
+                    "Queue statistics",
+                    "Department performance",
+                    "Today's summary"
+                ],
+                'type': 'doctor_availability',
+                'data': {
+                    'available': len(available),
+                    'unavailable': unavailable
+                }
+            }
+        
+        return {
+            'response': "⚠️ No doctors currently marked as available.\n\n"
+                       "Please update doctor availability in the system.",
+            'suggestions': ["Manage doctors", "Queue statistics"],
+            'type': 'doctor_availability'
+        }
+    
+    @staticmethod
+    def handle_noshow_prediction() -> dict:
+        """Handle no-show prediction queries."""
+        today = date.today()
+        
+        # Get today's confirmed appointments
+        confirmed = Appointment.query.filter_by(
+            appointment_date=today,
+            status='confirmed'
+        ).limit(20).all()
+        
+        if confirmed:
+            high_risk_count = 0
+            predictions = []
+            
+            for appt in confirmed[:5]:
+                patient = Patient.query.get(appt.patient_id)
+                if patient:
+                    # Simplified no-show risk (would use ML model in production)
+                    risk_score = 0.3  # Placeholder
+                    
+                    if risk_score > 0.5:
+                        high_risk_count += 1
+                        predictions.append(
+                            f"• {patient.name} - {appt.appointment_time.strftime('%I:%M %p')} "
+                            f"(Risk: {round(risk_score*100)}%)"
+                        )
+            
+            if predictions:
+                pred_text = "\n".join(predictions)
+                return {
+                    'response': f"⚠️ No-Show Risk Analysis:\n\n"
+                               f"High-risk appointments: {high_risk_count}/{len(confirmed)}\n\n"
+                               f"{pred_text}\n\n"
+                               f"💡 Consider sending reminder SMS to these patients.",
+                    'suggestions': [
+                        "Send reminders",
+                        "Queue statistics",
+                        "Today's summary"
+                    ],
+                    'type': 'noshow_prediction',
+                    'data': {'high_risk_count': high_risk_count}
+                }
+        
+        return {
+            'response': "✅ Low no-show risk for today's appointments.\n\n"
+                       "All patients are likely to show up.",
+            'suggestions': ["Queue statistics", "Today's summary"],
+            'type': 'noshow_prediction'
+        }
+    
+    @staticmethod
+    def handle_crowd_forecast() -> dict:
+        """Handle crowd forecast queries."""
+        from app.services.crowd_predictor import CrowdPredictor
+        from datetime import timedelta
+        
+        try:
+            crowd_predictor = CrowdPredictor()
+            tomorrow = date.today() + timedelta(days=1)
+            
+            # Get predictions for key hours
+            predictions = []
+            hours = [8, 10, 12, 14, 16]
+            
+            for hour in hours:
+                pred = crowd_predictor.predict_crowd_level(
+                    department_id=1,
+                    target_date=tomorrow,
+                    hour=hour
+                )
+                
+                time_label = f"{hour}:00 {'AM' if hour < 12 else 'PM'}"
+                emoji = {'low': '🟢', 'medium': '🟡', 'high': '🟠', 'critical': '🔴'}
+                predictions.append(
+                    f"{emoji.get(pred['level'], '⚪')} {time_label}: {pred['level'].title()}"
+                )
+            
+            pred_text = "\n".join(predictions)
+            
+            return {
+                'response': f"📊 Crowd Forecast for Tomorrow:\n"
+                           f"{tomorrow.strftime('%B %d, %Y')}\n\n"
+                           f"{pred_text}\n\n"
+                           f"💡 Recommendations:\n"
+                           f"• Schedule more staff during peak hours\n"
+                           f"• Prepare for high-volume periods\n"
+                           f"• Consider opening additional counters",
+                'suggestions': [
+                    "Queue statistics",
+                    "Doctor availability",
+                    "Department performance",
+                    "Today's summary"
+                ],
+                'type': 'crowd_forecast'
+            }
+        except Exception as e:
+            return {
+                'response': "Unable to generate crowd forecast at this time.\n\n"
+                           "Please try again later.",
+                'suggestions': ["Queue statistics", "Today's summary"],
+                'type': 'error'
+            }

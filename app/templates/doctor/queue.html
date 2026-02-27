@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}My Queue – SmartCare{% endblock %}
+{% block page_title %}<i class="bi bi-list-ol me-2"></i>My Queue{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h3 class="mb-0 text-warning">{{ in_progress|length }}</h3>
+                <small class="text-muted">In Progress</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h3 class="mb-0 text-info">{{ total_waiting }}</h3>
+                <small class="text-muted">Waiting</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h3 class="mb-0 text-success">{{ completed|length }}</h3>
+                <small class="text-muted">Completed Today</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- In Progress -->
+{% if in_progress %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-warning text-white py-3">
+        <h5 class="mb-0"><i class="bi bi-hourglass-split me-2"></i>In Progress</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Token</th>
+                        <th>Patient</th>
+                        <th>Age/Gender</th>
+                        <th>Priority</th>
+                        <th>Called At</th>
+                        <th>Appointment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in in_progress %}
+                    <tr>
+                        <td><strong class="text-warning">{{ entry.token_number }}</strong></td>
+                        <td>{{ entry.patient.name }}</td>
+                        <td>{{ entry.patient.age }}y, {{ entry.patient.gender }}</td>
+                        <td>
+                            {% set priority = entry.priority_score %}
+                            {% if priority >= 70 %}
+                                <span class="badge bg-danger">🔴 {{ priority }}</span>
+                            {% elif priority >= 45 %}
+                                <span class="badge bg-warning">🟠 {{ priority }}</span>
+                            {% elif priority >= 20 %}
+                                <span class="badge" style="background-color: #ffc107;">🟡 {{ priority }}</span>
+                            {% else %}
+                                <span class="badge bg-success">🟢 {{ priority }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ entry.called_at.strftime('%I:%M %p') if entry.called_at else '-' }}</td>
+                        <td>
+                            {% if entry.appointment %}
+                                <a href="{{ url_for('doctor_portal.appointment_detail', appointment_id=entry.appointment.id) }}" 
+                                   class="btn btn-sm btn-outline-primary">View</a>
+                            {% else %}
+                                <span class="text-muted">Walk-in</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Waiting Queue -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-info text-white py-3">
+        <h5 class="mb-0"><i class="bi bi-people me-2"></i>Waiting Queue ({{ total_waiting }})</h5>
+    </div>
+    <div class="card-body">
+        {% if waiting %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Token</th>
+                        <th>Patient</th>
+                        <th>Age/Gender</th>
+                        <th>Priority</th>
+                        <th>Wait Time</th>
+                        <th>Scheduled</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in waiting %}
+                    <tr>
+                        <td><strong>{{ loop.index }}</strong></td>
+                        <td><strong>{{ entry.token_number }}</strong></td>
+                        <td>{{ entry.patient.name }}</td>
+                        <td>{{ entry.patient.age }}y, {{ entry.patient.gender }}</td>
+                        <td>
+                            {% set priority = entry.priority_score %}
+                            {% if priority >= 70 %}
+                                <span class="badge bg-danger">🔴 {{ priority }}</span>
+                            {% elif priority >= 45 %}
+                                <span class="badge bg-warning">🟠 {{ priority }}</span>
+                            {% elif priority >= 20 %}
+                                <span class="badge" style="background-color: #ffc107;">🟡 {{ priority }}</span>
+                            {% else %}
+                                <span class="badge bg-success">🟢 {{ priority }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set wait_min = ((now() - entry.entered_at).total_seconds() / 60)|int %}
+                            {{ wait_min }} min
+                        </td>
+                        <td>
+                            {% if entry.appointment %}
+                                {{ entry.appointment.appointment_time.strftime('%I:%M %p') }}
+                            {% else %}
+                                <span class="text-muted">Walk-in</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('doctor_portal.call_next_patient', queue_id=entry.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-primary">Call Next</button>
+                            </form>
+                            {% if entry.appointment %}
+                                <a href="{{ url_for('doctor_portal.appointment_detail', appointment_id=entry.appointment.id) }}" 
+                                   class="btn btn-sm btn-outline-secondary">View</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-inbox fs-1"></i>
+            <p class="mt-2">No patients waiting</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Completed Today -->
+{% if completed %}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-success text-white py-3">
+        <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Completed Today ({{ completed|length }})</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Token</th>
+                        <th>Patient</th>
+                        <th>Completed At</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in completed %}
+                    <tr>
+                        <td>{{ entry.token_number }}</td>
+                        <td>{{ entry.patient.name }}</td>
+                        <td>{{ entry.completed_at.strftime('%I:%M %p') if entry.completed_at else '-' }}</td>
+                        <td>
+                            {% if entry.called_at and entry.completed_at %}
+                                {% set duration = ((entry.completed_at - entry.called_at).total_seconds() / 60)|int %}
+                                {{ duration }} min
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+// Auto-refresh every 30 seconds
+setTimeout(function() {
+    location.reload();
+}, 30000);
+</script>
+{% endblock %}

@@ -52,7 +52,7 @@ class Doctor(db.Model):
         return Appointment.query.filter(
             Appointment.doctor_id == self.id,
             Appointment.appointment_date == today,
-            Appointment.status.in_(["scheduled", "checked_in", "in_progress"]),
+            Appointment.status.in_(["scheduled", "waiting", "checked_in", "in_progress"]),
         ).count()
 
     @property

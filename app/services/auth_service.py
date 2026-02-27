@@ -121,6 +121,22 @@ def user_required(f):
     return decorated_function
 
 
+def doctor_required(f):
+    """Decorator to require doctor role."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash('Please login to access this page.', 'warning')
+            return redirect(url_for('auth.login'))
+        
+        if not current_user.is_doctor():
+            flash('Access denied. This page is for doctors only.', 'danger')
+            return redirect(url_for('dashboard.index'))
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 def api_token_required(f):
     """Decorator for API routes requiring JWT token."""
     @wraps(f)

@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Details - {{ patient.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-user-injured"></i> Patient Details</h1>
+        <a href="{{ url_for('queue.view_queue') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Queue
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Personal Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-id-card"></i> Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">Patient ID:</th>
+                            <td><strong>{{ patient.patient_id }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Name:</th>
+                            <td>{{ patient.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Age:</th>
+                            <td>{{ patient.age }} years</td>
+                        </tr>
+                        <tr>
+                            <th>Gender:</th>
+                            <td>{{ patient.gender|title }}</td>
+                        </tr>
+                        <tr>
+                            <th>Phone:</th>
+                            <td><i class="fas fa-phone"></i> {{ patient.phone }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td><i class="fas fa-envelope"></i> {{ patient.email or 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Blood Group:</th>
+                            <td>
+                                {% if patient.blood_group %}
+                                <span class="badge bg-danger">{{ patient.blood_group }}</span>
+                                {% else %}
+                                N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Registered:</th>
+                            <td>{{ patient.registered_at.strftime('%B %d, %Y') if patient.registered_at else 'N/A' }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Visit -->
+        {% if current_queue %}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-hospital-user"></i> Current Visit</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">Token:</th>
+                            <td><strong class="text-primary">{{ current_queue.token_number }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Department:</th>
+                            <td>{{ current_queue.department.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Doctor:</th>
+                            <td>{{ current_queue.doctor.name if current_queue.doctor else 'Not assigned' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Priority:</th>
+                            <td>
+                                <span class="badge" style="background-color: {{ priority.color if priority else '#6c757d' }};">
+                                    {{ priority.icon if priority else '⚪' }} {{ priority.label if priority else 'Normal' }}
+                                </span>
+                                <span class="text-muted">(Score: {{ current_queue.priority_score }})</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>
+                                <span class="badge bg-{{ 'warning' if current_queue.status == 'waiting' else 'primary' if current_queue.status == 'in_progress' else 'success' }}">
+                                    {{ current_queue.status|title }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Est. Wait:</th>
+                            <td>{{ current_queue.estimated_wait_min }} minutes</td>
+                        </tr>
+                        <tr>
+                            <th>Emergency:</th>
+                            <td>
+                                {% if patient.is_emergency %}
+                                <span class="badge bg-danger"><i class="fas fa-exclamation-triangle"></i> YES</span>
+                                {% else %}
+                                <span class="badge bg-secondary">No</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if current_queue.appointment %}
+                        <tr>
+                            <th>Appointment Time:</th>
+                            <td>{{ current_queue.appointment.appointment_time.strftime('%I:%M %p') }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Current Symptoms -->
+    {% if current_queue and current_queue.appointment and current_queue.appointment.symptoms %}
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-notes-medical"></i> Current Symptoms/Reason for Visit</h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-0">{{ current_queue.appointment.symptoms }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Medical History -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Medical History</h5>
+                </div>
+                <div class="card-body">
+                    {% if patient.medical_history %}
+                    <p class="mb-0">{{ patient.medical_history }}</p>
+                    {% else %}
+                    <p class="text-muted mb-0">No medical history recorded</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment History -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> Appointment History</h5>
+                </div>
+                <div class="card-body">
+                    {% if appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Appointment #</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Department</th>
+                                    <th>Doctor</th>
+                                    <th>Symptoms</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appt in appointments %}
+                                <tr>
+                                    <td><strong>{{ appt.appointment_number }}</strong></td>
+                                    <td>{{ appt.appointment_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ appt.appointment_time.strftime('%I:%M %p') }}</td>
+                                    <td>{{ appt.department.name if appt.department else 'N/A' }}</td>
+                                    <td>{{ appt.doctor.name if appt.doctor else 'N/A' }}</td>
+                                    <td>{{ appt.symptoms[:50] + '...' if appt.symptoms and appt.symptoms|length > 50 else appt.symptoms or 'N/A' }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if appt.status == 'completed' else 'warning' if appt.status == 'waiting' else 'secondary' }}">
+                                            {{ appt.status|title }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No previous appointments</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{{ url_for('queue.view_queue') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Queue
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

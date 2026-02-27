@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Help - Smart Hospital</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #1e40af;
+            margin-top: 30px;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px 5px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .button:hover {
+            background: #1e40af;
+        }
+        .button.secondary {
+            background: #10b981;
+        }
+        .button.secondary:hover {
+            background: #059669;
+        }
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        ul {
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Smart Hospital - Help & Navigation</h1>
+        
+        <div class="warning-box">
+            <strong>⚠️ Seeing a White Screen?</strong><br>
+            You're probably not logged in. Use the simple login page below to login first!
+        </div>
+        
+        <h2>🚀 Quick Start</h2>
+        
+        <div class="success-box">
+            <strong>✅ Recommended: Use Simple Login</strong><br>
+            The simple login page works without fancy CSS/JavaScript and is more reliable.
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="/auth/simple-login" class="button">🔐 Simple Login Page</a>
+            <a href="/auth/login" class="button secondary">🎨 Fancy Login Page</a>
+        </div>
+        
+        <h2>📋 Test Accounts</h2>
+        
+        <div class="info-box">
+            <strong>Admin Account:</strong><br>
+            Email: <code>admin@hospital.com</code><br>
+            Password: <code>admin123</code><br>
+            <br>
+            <strong>Patient Account:</strong><br>
+            Email: <code>test@patient.com</code><br>
+            Password: <code>test123</code>
+        </div>
+        
+        <h2>🔗 Available Pages</h2>
+        
+        <h3>Public Pages (No Login Required)</h3>
+        <ul>
+            <li><a href="/patient/">Patient Home</a></li>
+            <li><a href="/auth/login">Login Page (Fancy)</a></li>
+            <li><a href="/auth/simple-login">Login Page (Simple)</a></li>
+            <li><a href="/auth/register">Register as Patient</a></li>
+            <li><a href="/patient/check-status">Check Appointment Status</a></li>
+        </ul>
+        
+        <h3>Patient Pages (Login Required)</h3>
+        <ul>
+            <li><a href="/patient/dashboard">My Dashboard</a></li>
+            <li><a href="/patient/book">Book Appointment</a></li>
+            <li><a href="/patient/confirmation">Appointment Confirmation</a></li>
+        </ul>
+        
+        <h3>Admin Pages (Admin Login Required)</h3>
+        <ul>
+            <li><a href="/admin/">Admin Dashboard</a></li>
+            <li><a href="/admin/appointments">Manage Appointments</a></li>
+            <li><a href="/admin/queue">Queue Management</a></li>
+            <li><a href="/admin/doctors">Manage Doctors</a></li>
+            <li><a href="/admin/manage/doctors">Doctor Management</a></li>
+            <li><a href="/admin/manage/departments">Department Management</a></li>
+        </ul>
+        
+        <h2>🔧 Troubleshooting</h2>
+        
+        <h3>White Screen Issue</h3>
+        <ol>
+            <li>Make sure you're logged in (use simple login page)</li>
+            <li>Clear browser cache: <code>Ctrl + Shift + R</code></li>
+            <li>Check Flask console for errors</li>
+            <li>Check browser console (F12) for JavaScript errors</li>
+        </ol>
+        
+        <h3>Can't Login</h3>
+        <ol>
+            <li>Use the <a href="/auth/simple-login">simple login page</a></li>
+            <li>Make sure server is running: <code>python run.py</code></li>
+            <li>Use exact credentials from above</li>
+            <li>Clear browser cookies</li>
+        </ol>
+        
+        <h3>Page Not Found (404)</h3>
+        <ol>
+            <li>Check the URL is correct</li>
+            <li>Make sure server is running</li>
+            <li>Restart server: <code>Ctrl+C</code> then <code>python run.py</code></li>
+        </ol>
+        
+        <h2>📞 Need More Help?</h2>
+        
+        <p>Check these documentation files:</p>
+        <ul>
+            <li><code>WHITE_SCREEN_FIX.md</code> - Fix white screen issues</li>
+            <li><code>TEST_LOGIN_NOW.md</code> - Login testing guide</li>
+            <li><code>WHAT_TO_DO_NOW.md</code> - Complete action plan</li>
+            <li><code>FIXED_NOW_TRY_THIS.md</code> - Quick start guide</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="/auth/simple-login" class="button">🔐 Login Now</a>
+        </div>
+        
+        <div class="info-box" style="margin-top: 40px;">
+            <strong>💡 Pro Tip:</strong> Bookmark the simple login page for easy access:<br>
+            <code>http://127.0.0.1:5000/auth/simple-login</code>
+        </div>
+    </div>
+</body>
+</html>

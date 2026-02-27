@@ -53,6 +53,7 @@ def create_app(config_class=None):
     from app.routes.api import api_bp
     from app.routes.chatbot import chatbot_bp
     from app.routes.patient_portal import patient_portal_bp
+    from app.routes.doctor_portal import doctor_portal_bp
     from app.routes.admin_management import admin_mgmt_bp
 
     # Authentication routes (public)
@@ -64,6 +65,9 @@ def create_app(config_class=None):
     # Patient Portal (requires user login)
     app.register_blueprint(patient_portal_bp, url_prefix="/patient")
     
+    # Doctor Portal (requires doctor login)
+    app.register_blueprint(doctor_portal_bp)
+    
     # Admin Portal (requires admin login)
     app.register_blueprint(dashboard_bp, url_prefix="/admin")
     app.register_blueprint(appointments_bp, url_prefix="/admin/appointments")
@@ -74,6 +78,10 @@ def create_app(config_class=None):
     # API routes
     app.register_blueprint(api_bp, url_prefix="/api")
     app.register_blueprint(chatbot_bp, url_prefix="/chatbot")
+    
+    # Notification routes
+    from app.routes.notifications import notifications_bp
+    app.register_blueprint(notifications_bp, url_prefix="/admin/notifications")
 
     # Create database tables
     with app.app_context():

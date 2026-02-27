@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SmartCare Hospital{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,8 +17,8 @@
     {% if current_user.is_authenticated %}
     <!-- Authenticated User Layout -->
     <div class="d-flex">
-        <nav class="sidebar bg-dark text-white">
-            <div class="sidebar-header p-3 border-bottom border-secondary">
+        <nav class="sidebar">
+            <div class="sidebar-header p-3">
                 <h5 class="mb-0">
                     <i class="bi bi-hospital"></i> SmartCare
                 </h5>
@@ -63,6 +66,38 @@
                         <i class="fas fa-hospital me-2"></i> Manage Departments
                     </a>
                 </li>
+                {% elif current_user.is_doctor() %}
+                <!-- Doctor Navigation -->
+                <li class="nav-item">
+                    <a class="nav-link text-white {% if request.endpoint == 'doctor_portal.dashboard' %}active bg-primary rounded{% endif %}"
+                       href="{{ url_for('doctor_portal.dashboard') }}">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {% if request.endpoint == 'doctor_portal.appointments' %}active bg-primary rounded{% endif %}"
+                       href="{{ url_for('doctor_portal.appointments') }}">
+                        <i class="bi bi-calendar-check me-2"></i> My Appointments
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {% if request.endpoint == 'doctor_portal.queue' %}active bg-primary rounded{% endif %}"
+                       href="{{ url_for('doctor_portal.queue') }}">
+                        <i class="bi bi-list-ol me-2"></i> My Queue
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {% if request.endpoint == 'doctor_portal.schedule' %}active bg-primary rounded{% endif %}"
+                       href="{{ url_for('doctor_portal.schedule') }}">
+                        <i class="bi bi-calendar-week me-2"></i> Schedule
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {% if request.endpoint == 'doctor_portal.profile' %}active bg-primary rounded{% endif %}"
+                       href="{{ url_for('doctor_portal.profile') }}">
+                        <i class="bi bi-person me-2"></i> My Profile
+                    </a>
+                </li>
                 {% else %}
                 <!-- Patient Navigation -->
                 <li class="nav-item">
@@ -94,7 +129,7 @@
         </nav>
 
         <main class="main-content flex-grow-1">
-            <div class="topbar bg-white border-bottom px-4 py-2 d-flex justify-content-between align-items-center">
+            <div class="topbar px-4 py-2 d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">{% block page_title %}Dashboard{% endblock %}</h5>
                 <div class="d-flex align-items-center gap-3">
                     <span class="badge bg-success">
@@ -105,6 +140,8 @@
                             <i class="bi bi-person-circle me-1"></i>{{ current_user.name }}
                             {% if current_user.is_admin() %}
                             <span class="badge bg-danger ms-1">Admin</span>
+                            {% elif current_user.is_doctor() %}
+                            <span class="badge bg-info ms-1">Doctor</span>
                             {% endif %}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
